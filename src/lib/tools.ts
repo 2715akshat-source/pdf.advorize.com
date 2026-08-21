@@ -63,9 +63,10 @@ export const tools: Tool[] = [
     category: "Edit",
     custom: "editor",
     action: "Save the edited PDF",
-    title: "Edit PDF Online Free — Add Text, Sign and Download",
+    title:
+      "Edit PDF Free — Add Text, Sign and Download",
     description:
-      "Open a PDF, type on it, draw your signature, highlight lines and drop in a logo, then download it. Free, no sign-up, and the file never leaves your browser.",
+      "Edit a PDF free in your browser: type on the page, sign it by hand, highlight and add images, then download. No sign-up, and your file is never uploaded.",
     h1: "Edit a PDF and download it",
     intro:
       "The thing most people actually want from a PDF tool: open the file, add what is missing, and save it. Type anywhere on the page, sign it by hand, highlight a clause, drop in a stamp or a logo — then download a PDF whose original pages are untouched underneath.",
@@ -111,9 +112,10 @@ export const tools: Tool[] = [
     multiple: true,
     category: "Organise",
     action: "Merge PDFs",
-    title: "Merge PDF — Combine PDF Files Free, No Upload",
+    title:
+      "Merge PDF Free — Combine PDF Files Online",
     description:
-      "Combine two or more PDF files into a single document in your browser. Drag to reorder, no upload, no sign-up and no watermark on the file you get back.",
+      "Merge PDF files into one free, in any order, with no upload and no sign-up. Combine contracts, scans and annexures in your browser and download instantly.",
     h1: "Merge PDF files into one",
     intro:
       "Drop in the documents you want joined, drag them into the order you want, and get a single PDF back. The merge happens inside this tab using your own machine, so even a confidential contract never leaves your computer.",
@@ -153,9 +155,10 @@ export const tools: Tool[] = [
     accept: PDF,
     category: "Organise",
     action: "Split PDF",
-    title: "Split PDF — Separate PDF Pages Free Online",
+    title:
+      "Split PDF Free — Separate Pages or Ranges",
     description:
-      "Split a PDF into single pages or into custom page ranges and download them as a zip. Runs entirely in your browser, with no upload, sign-up or watermark.",
+      "Split a PDF into single pages or custom page ranges free. Break up a scan holding several documents in your browser — no upload, no watermark, no sign-up.",
     h1: "Split a PDF into separate files",
     intro:
       "Cut one document into several. Either slice it every few pages, or write out the exact ranges you want as separate files — useful when one scan holds a dozen invoices.",
@@ -222,9 +225,10 @@ export const tools: Tool[] = [
     accept: PDF,
     category: "Optimise",
     action: "Compress PDF",
-    title: "Compress PDF — Reduce PDF File Size Online Free",
+    title:
+      "Compress PDF — Reduce Size to 100KB or 1MB",
     description:
-      "Reduce the size of a large PDF so it fits an email or upload limit. Choose a quality level, compress locally in your browser, and download without any sign-up.",
+      "Compress PDF free to fit a 100KB, 200KB, 500KB or 1MB upload limit. Choose a quality level and shrink scans by up to 90% in your browser, with no upload.",
     h1: "Compress a PDF to a smaller size",
     intro:
       "Portal upload capped at 2 MB? Pick a quality level and this rebuilds every page as an optimised image, which is what makes scanned documents and image-heavy decks drop so sharply.",
@@ -283,9 +287,10 @@ export const tools: Tool[] = [
     accept: PDF,
     category: "Edit",
     action: "Rotate pages",
-    title: "Rotate PDF Pages Online — Save the Rotation",
+    title:
+      "Rotate PDF Free — And Save the Rotation",
     description:
-      "Rotate every page of a PDF, or only the ones you name, by 90, 180 or 270 degrees and save the change permanently. Free, browser-based, no upload required.",
+      "Rotate PDF pages 90, 180 or 270 degrees and save it permanently, so it stays turned for everyone. Free, no upload, and you can rotate only the pages you name.",
     h1: "Rotate the pages of a PDF",
     intro:
       "Rotating in a PDF reader usually only changes how it looks on your screen. This writes the rotation into the file, so it stays turned for whoever opens it next and however it is printed.",
@@ -342,9 +347,10 @@ export const tools: Tool[] = [
     accept: PDF,
     category: "Organise",
     action: "Delete pages",
-    title: "Delete Pages from PDF — Free Online Page Remover",
+    title:
+      "Delete Pages From PDF Free — Remove Pages",
     description:
-      "Remove unwanted pages from a PDF — blank scans, cover sheets, an internal appendix — and download the trimmed document. Processed in your browser, never uploaded.",
+      "Delete pages from a PDF free: blank scans, a cover sheet or an internal appendix. Name the pages to drop and download the trimmed file. Nothing is uploaded.",
     h1: "Delete pages from a PDF",
     intro:
       "Name the pages you want gone and everything else is copied through untouched, in the same order. Handy for pulling an internal costing sheet out of a proposal before it goes to a client.",
@@ -386,9 +392,10 @@ export const tools: Tool[] = [
     accept: PDF,
     category: "Organise",
     action: "Extract pages",
-    title: "Extract Pages from PDF — Save Selected Pages",
+    title:
+      "Extract PDF Pages Free — Save Selected Pages",
     description:
-      "Pick the pages you need from a long PDF and save just those as a new file. No upload, no account and no watermark — everything runs inside your browser.",
+      "Extract pages from a PDF free and save just the ones you need as a new file. Pick pages from a contact sheet or type the range. No upload and no sign-up.",
     h1: "Extract pages from a PDF",
     intro:
       "The opposite of deleting: you name what to keep, and only those pages make it into the new file — in the order you list them.",
@@ -430,9 +437,10 @@ export const tools: Tool[] = [
     accept: PDF,
     category: "Organise",
     action: "Reorder pages",
-    title: "Organise PDF — Reorder PDF Pages Online Free",
+    title:
+      "Organise PDF Free — Reorder PDF Pages",
     description:
-      "Rearrange the pages of a PDF into any order by writing the sequence you want. Free, no sign-up, and the file is processed locally rather than uploaded.",
+      "Reorder PDF pages free by writing the sequence you want. Move a signature page, fix an out-of-order tender pack, and download — all inside your browser.",
     h1: "Reorder the pages of a PDF",
     intro:
       "Write the page order you want and the document is rebuilt to match. You can move, repeat or drop pages in one pass — anything you leave out simply is not included.",
@@ -474,9 +482,10 @@ export const tools: Tool[] = [
     accept: PDF,
     category: "Organise",
     action: "Reverse pages",
-    title: "Reverse PDF Page Order — Free Online Tool",
+    title:
+      "Reverse PDF Page Order — Fix a Backwards Scan",
     description:
-      "Flip a PDF so the last page comes first — the usual fix for a document scanned back to front. One click, no upload, no sign-up, nothing installed.",
+      "Reverse the page order of a PDF in one click — the usual fix when a sheet-fed scanner reads a stack back to front. Free, no upload, nothing to install.",
     h1: "Reverse the page order of a PDF",
     intro:
       "Sheet-fed scanners routinely produce documents back to front. This flips the whole sequence in one pass, with no page numbers to type.",
@@ -514,9 +523,10 @@ export const tools: Tool[] = [
     accept: PDF,
     category: "Convert",
     action: "Convert to JPG",
-    title: "PDF to JPG — Convert PDF Pages to Images Free",
+    title:
+      "PDF to JPG Free — Convert PDF Pages to Images",
     description:
-      "Convert each page of a PDF into a JPG image at the resolution you choose, then download them as a zip. Browser-based, no upload, no watermark, no account.",
+      "Convert PDF to JPG free at 72, 150 or 300 DPI and download the images as a zip. Ideal for slides, listings and WhatsApp. Runs in your browser, never uploaded.",
     h1: "Convert a PDF to JPG images",
     intro:
       "Every page comes out as its own JPG, numbered in order — the quickest way to get a document into a slide deck, a listing or a WhatsApp message.",
@@ -568,9 +578,10 @@ export const tools: Tool[] = [
     accept: PDF,
     category: "Convert",
     action: "Convert to PNG",
-    title: "PDF to PNG — Export PDF Pages as PNG Images",
+    title:
+      "PDF to PNG Free — Lossless Page Images",
     description:
-      "Render every page of a PDF to a crisp, lossless PNG at your chosen resolution. Ideal for text, charts and screenshots. Runs locally with no upload or sign-up.",
+      "Convert PDF to PNG free at the resolution you choose. Lossless, so text, tables and screenshots stay sharp where JPG blurs them. No upload and no sign-up.",
     h1: "Convert a PDF to PNG images",
     intro:
       "PNG keeps hard edges clean, which is what you want for pages that are mostly type, tables or diagrams — no JPG fuzz around the letters.",
@@ -622,9 +633,10 @@ export const tools: Tool[] = [
     multiple: true,
     category: "Convert",
     action: "Create PDF",
-    title: "JPG to PDF — Convert Images to PDF Free Online",
+    title:
+      "JPG to PDF Free — Convert Photos to PDF",
     description:
-      "Turn one photo or a whole batch into a single PDF, fitted to A4 or letter with the margins you choose. No upload, no sign-up and no watermark on the result.",
+      "Convert JPG photos to one PDF free, fitted to A4 or Letter with the margins you set. The fix when a form only accepts a PDF and your documents are photos.",
     h1: "Convert JPG images to a PDF",
     intro:
       "The usual reason for this is a form that will only accept a PDF while your documents are photos on your phone. Add them in order, pick a page size, and you get one clean file.",
@@ -688,9 +700,10 @@ export const tools: Tool[] = [
     multiple: true,
     category: "Convert",
     action: "Create PDF",
-    title: "PNG to PDF — Convert PNG Images to PDF Free",
+    title:
+      "PNG to PDF Free — Screenshots to One PDF",
     description:
-      "Combine PNG screenshots or graphics into one PDF at A4, letter or the image's own size. Everything is built in your browser, with nothing uploaded anywhere.",
+      "Convert PNG screenshots into a single PDF free, at full resolution so interface text stays sharp. Arrange the order, then download. Nothing is uploaded.",
     h1: "Convert PNG images to a PDF",
     intro:
       "Screenshots are far easier to send as one PDF than as fifteen attachments. Drop them in, set the order, and they come back as a single paginated document.",
@@ -752,9 +765,10 @@ export const tools: Tool[] = [
     accept: PDF,
     category: "Edit",
     action: "Add numbers",
-    title: "Add Page Numbers to PDF — Free Online Tool",
+    title:
+      "Add Page Numbers to PDF Free — Any Position",
     description:
-      "Stamp page numbers onto a PDF in any corner, in formats like 3 or Page 3 of 12, starting from any number. Free, browser-based and never uploaded.",
+      "Add page numbers to a PDF free in any corner, in formats like Page 3 of 12, starting from any number and skipping the cover. Browser-based, never uploaded.",
     h1: "Add page numbers to a PDF",
     intro:
       "Numbering a document after it has been assembled — a merged tender, a contract with annexures — usually means reopening the source files. This stamps the numbers straight onto the finished PDF.",
@@ -819,9 +833,10 @@ export const tools: Tool[] = [
     accept: PDF,
     category: "Edit",
     action: "Add watermark",
-    title: "Watermark PDF — Add Text Watermark Free Online",
+    title:
+      "Watermark PDF Free — Add a Text Watermark",
     description:
-      "Add a diagonal text watermark to every page of a PDF with your own wording, size, angle and opacity. Processed in your browser, so drafts stay private.",
+      "Add a DRAFT or CONFIDENTIAL watermark to every page of a PDF free, with your own wording, size, angle and opacity. Drafts stay private — nothing is uploaded.",
     h1: "Add a watermark to a PDF",
     intro:
       "Mark a document before it circulates. The watermark is drawn across the middle of every page at the opacity you set, so it reads clearly without burying the content underneath.",
@@ -876,9 +891,10 @@ export const tools: Tool[] = [
     accept: PDF,
     category: "Edit",
     action: "Crop pages",
-    title: "Crop PDF Margins — Trim PDF Pages Online Free",
+    title:
+      "Crop PDF Free — Trim Margins and Scan Edges",
     description:
-      "Cut white margins or a scanner's black edge off every page of a PDF by setting a trim on each side. Free, no upload, and the page content is left untouched.",
+      "Crop PDF margins free: cut a scanner's black border or white space off every page by setting a trim per side. Free, no sign-up, and the content is untouched.",
     h1: "Crop the margins of a PDF",
     intro:
       "Set how much to take off each side and the crop applies to every page. The usual reasons are a scanner edge you want gone, or squeezing more of the text onto an e-reader screen.",
@@ -923,9 +939,10 @@ export const tools: Tool[] = [
     accept: PDF,
     category: "Secure",
     action: "Flatten PDF",
-    title: "Flatten PDF — Lock Form Fields and Annotations",
+    title:
+      "Flatten PDF Free — Lock Form Fields for Good",
     description:
-      "Flatten a PDF so filled form fields, comments and layers become permanent page content that nobody can edit or accidentally clear. Runs locally, no upload.",
+      "Flatten a PDF free so filled form fields, signatures and comments become permanent page content nobody can edit or clear by accident. Nothing is uploaded.",
     h1: "Flatten a PDF",
     intro:
       "A filled form is still editable — the next person to open it can change your answers or wipe them by mistake. Flattening bakes everything into the page so what you send is what they see.",
@@ -977,9 +994,10 @@ export const tools: Tool[] = [
     accept: PDF,
     category: "Optimise",
     action: "Convert to greyscale",
-    title: "Convert PDF to Greyscale — Black and White PDF",
+    title:
+      "PDF to Greyscale — Black and White PDF Free",
     description:
-      "Turn a colour PDF into greyscale so it prints on a mono printer and takes less space. Converted in your browser with nothing uploaded and no sign-up.",
+      "Convert a colour PDF to greyscale free so it prints on a mono printer without a colour surcharge, and usually shrinks too. Converted in your browser.",
     h1: "Convert a PDF to greyscale",
     intro:
       "Print shops charge by the colour page, and a deck with one tinted logo per slide counts as colour throughout. Converting to greyscale first removes the surcharge and usually shrinks the file too.",
@@ -1030,9 +1048,10 @@ export const tools: Tool[] = [
     accept: PDF,
     category: "Convert",
     action: "Extract text",
-    title: "PDF to Text — Extract Text from PDF Free Online",
+    title:
+      "PDF to Text Free — Extract Text From a PDF",
     description:
-      "Extract all the text from a PDF into a plain text file you can paste anywhere. Works page by page in your browser, with no upload and no sign-up.",
+      "Extract text from a PDF free into a clean .txt file, without the broken line breaks you get from copy and paste. Works with any script. Nothing is uploaded.",
     h1: "Extract the text from a PDF",
     intro:
       "Copying out of a PDF reader tends to arrive full of broken line breaks. This walks the document's own text layer page by page and gives you a clean .txt file.",
@@ -1083,9 +1102,10 @@ export const tools: Tool[] = [
     accept: PDF,
     category: "Secure",
     action: "Save metadata",
-    title: "Edit PDF Metadata — Change or Remove PDF Info",
+    title:
+      "Edit PDF Metadata — Change or Remove Info",
     description:
-      "Set the title, author, subject and keywords on a PDF, or strip the lot before you send it out. Free, browser-based and never uploaded to a server.",
+      "Edit PDF metadata free: set the title, author, subject and keywords, or strip the lot before a document leaves your hands. Browser-based, never uploaded.",
     h1: "Edit the metadata of a PDF",
     intro:
       "Every PDF carries hidden properties, and an exported document often still names the template's original author. Rewrite those fields, or clear them entirely before the file leaves your hands.",
@@ -1131,9 +1151,10 @@ export const tools: Tool[] = [
     accept: PDF,
     category: "Secure",
     action: "Unlock PDF",
-    title: "Unlock PDF — Remove PDF Password and Restrictions",
+    title:
+      "Unlock PDF Free — Remove Password and Limits",
     description:
-      "Remove printing and copying restrictions from a PDF, or strip a known open password, so the file opens freely. Done in your browser — the password never travels.",
+      "Unlock a PDF you own free: remove printing and copying restrictions, or strip a known open password. The password is used in your browser and never sent.",
     h1: "Unlock a protected PDF",
     intro:
       "Bank and utility statements arrive locked, and plenty of documents block printing or copying for no good reason. Unlock a file you are entitled to open and get a clean copy back.",

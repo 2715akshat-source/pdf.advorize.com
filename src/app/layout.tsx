@@ -19,7 +19,7 @@ export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
     default: `${BRAND} — Free Browser-Based PDF Tools, No Upload`,
-    template: `%s | ${BRAND}`,
+    template: "%s | Advorize",
   },
   applicationName: BRAND,
   icons: { icon: "/favicon-mark.png" },

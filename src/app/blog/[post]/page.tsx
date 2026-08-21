@@ -10,7 +10,7 @@ import { FadeUp, Reveal } from "@/components/Reveal";
 import { posts, postBySlug } from "@/content/posts";
 import { bySlug } from "@/lib/tools";
 import { absolute, buildMetadata, BRAND, PARENT_URL } from "@/lib/seo";
-import { breadcrumbSchema, faqSchema, graph } from "@/lib/schema";
+import { breadcrumbSchema, faqSchema, graph, pageSchema } from "@/lib/schema";
 
 export function generateStaticParams() {
   return posts.map((p) => ({ post: p.slug }));
@@ -49,6 +49,12 @@ export default async function PostPage({
     <>
       <JsonLd
         data={graph([
+          pageSchema({
+            path: `/blog/${post.slug}`,
+            name: post.title,
+            description: post.description,
+            datePublished: post.date,
+          }),
           {
             "@type": "BlogPosting",
             "@id": `${absolute(`/blog/${post.slug}`)}#post`,

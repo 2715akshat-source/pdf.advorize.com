@@ -69,6 +69,33 @@ export const howToSchema = (tool: Tool) => ({
   })),
 });
 
+/**
+ * The page itself. Small, but it is what connects a URL to the site, the
+ * organisation and the language it is written in — the context an answer
+ * engine uses to decide whether a page is a fragment or part of something.
+ */
+export const pageSchema = ({
+  path,
+  name,
+  description,
+  datePublished,
+}: {
+  path: string;
+  name: string;
+  description: string;
+  datePublished?: string;
+}) => ({
+  "@type": "WebPage",
+  "@id": `${absolute(path)}#webpage`,
+  url: absolute(path),
+  name,
+  description,
+  inLanguage: "en-IN",
+  isPartOf: { "@id": `${SITE_URL}/#website` },
+  ...(datePublished && { datePublished }),
+  about: { "@id": `${PARENT_URL}/#organization` },
+});
+
 export const breadcrumbSchema = (trail: { name: string; path: string }[]) => ({
   "@type": "BreadcrumbList",
   itemListElement: trail.map((t, i) => ({

@@ -10,13 +10,14 @@ import TransitionLink from "@/components/TransitionLink";
 import { FadeUp, Reveal } from "@/components/Reveal";
 import { bySlug, tools, type Tool } from "@/lib/tools";
 import { variantBySlug, variants, variantsForTool, traits } from "@/lib/variants";
-import { postForTool } from "@/content/posts";
+import { postForTool, postsForTool } from "@/content/posts";
 import { buildMetadata } from "@/lib/seo";
 import {
   breadcrumbSchema,
   faqSchema,
   graph,
   howToSchema,
+  pageSchema,
   toolSchema,
 } from "@/lib/schema";
 
@@ -84,13 +85,18 @@ function ToolPage({ tool }: { tool: Tool }) {
   const related = tool.related
     .map(bySlug)
     .filter((t): t is NonNullable<typeof t> => Boolean(t));
-  const post = postForTool(tool.slug);
+  const guides = postsForTool(tool.slug);
   const intents = variantsForTool(tool.slug);
 
   return (
     <>
       <JsonLd
         data={graph([
+          pageSchema({
+            path: `/${tool.slug}`,
+            name: tool.title,
+            description: tool.description,
+          }),
           toolSchema(tool),
           howToSchema(tool),
           faqSchema(`/${tool.slug}`, tool.faqs),
@@ -175,32 +181,40 @@ function ToolPage({ tool }: { tool: Tool }) {
 
       <Faq items={tool.faqs} title="Questions people ask" />
 
-      {/* the written guide for this tool */}
-      {post && (
+      {/* the written guides for this tool */}
+      {guides.length > 0 && (
         <section className="shell pb-16">
-          <FadeUp>
-            <TransitionLink
-              href={`/blog/${post.slug}`}
-              data-cursor="hover"
-              data-cursor-text="Read"
-              className="group flex flex-col gap-6 rounded-[28px] border border-line p-8 md:flex-row md:items-center md:justify-between md:p-10"
-            >
-              <div>
-                <p className="text-[11px] font-semibold tracking-[0.2em] text-muted uppercase">
-                  The guide · {post.minutes} min
-                </p>
-                <p className="display mt-3 max-w-[24ch] text-2xl transition-colors duration-500 group-hover:text-accent md:text-3xl">
-                  {post.h1}
-                </p>
-              </div>
-              <span
-                aria-hidden
-                className="text-2xl text-muted transition-all duration-500 group-hover:translate-x-1 group-hover:text-accent"
-              >
-                &rarr;
-              </span>
-            </TransitionLink>
-          </FadeUp>
+          <p className="mb-3 text-[11px] font-semibold tracking-[0.2em] text-muted uppercase">
+            {guides.length === 1 ? "The guide" : "Guides"}
+          </p>
+          <div className="grid gap-4 md:grid-cols-2">
+            {guides.map((post, i) => (
+              <FadeUp key={post.slug} delay={Math.min(i, 4) * 0.05}>
+                <TransitionLink
+                  href={`/blog/${post.slug}`}
+                  data-cursor="hover"
+                  data-cursor-text="Read"
+                  className="group flex h-full flex-col justify-between gap-6 rounded-[28px] border border-line p-8 transition-colors duration-500 hover:border-fg"
+                >
+                  <div>
+                    <p className="text-sm text-muted">{post.minutes} min read</p>
+                    <p className="display mt-3 text-2xl transition-colors duration-500 group-hover:text-accent">
+                      {post.h1}
+                    </p>
+                    <p className="mt-3 text-[15px] leading-relaxed text-muted">
+                      {post.description}
+                    </p>
+                  </div>
+                  <span
+                    aria-hidden
+                    className="text-xl text-muted transition-all duration-500 group-hover:translate-x-1 group-hover:text-accent"
+                  >
+                    &rarr;
+                  </span>
+                </TransitionLink>
+              </FadeUp>
+            ))}
+          </div>
         </section>
       )}
 
@@ -279,6 +293,11 @@ function VariantPage({ slug }: { slug: string }) {
     <>
       <JsonLd
         data={graph([
+          pageSchema({
+            path: `/${variant.slug}`,
+            name: variant.title,
+            description: variant.description,
+          }),
           toolSchema(tool),
           faqSchema(`/${variant.slug}`, variant.faqs),
           breadcrumbSchema([

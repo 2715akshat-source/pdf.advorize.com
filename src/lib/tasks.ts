@@ -95,6 +95,78 @@ function sizeTarget({
 
 export const tasks: Variant[] = [
   sizeTarget({
+    slug: "compress-pdf-to-200kb",
+    target: "200 KB",
+    title: "Compress PDF to 200KB Free — For Form Uploads",
+    description:
+      "Compress a PDF to 200KB free — the limit most Indian government portals set for UPSC, SSC, RRB and IBPS uploads. What is achievable, and the order to try it in.",
+    reality:
+      "200 KB is the single most common limit on Indian government portals — UPSC, SSC, RRB, IBPS and most state PSC sites all sit at or near it, and NIC upload guidelines are why so many of them share the number. It is a demanding target but a realistic one for the documents these forms actually ask for: a certificate, a mark sheet, an ID page. A twenty-page bundle will not reach it, and is almost never what was asked for.",
+    advice: [
+      "Work down through the settings rather than starting at the bottom:",
+      [
+        "Check what the portal asked for first. These forms want one document, and people routinely upload a whole scanned folder — extracting the two pages requested usually solves the size problem outright.",
+        "Medium quality, then look at the size. A two or three page scan often lands under 200 KB here.",
+        "Add greyscale. On a scan of black text on white paper this is normally the biggest single saving available, and no portal has ever rejected a document for being greyscale.",
+        "Low quality last. At two or three pages it stays perfectly legible, which is all the reviewing officer needs.",
+      ],
+      "Check the other rules while you are in there. Portals that cap size at 200 KB usually also fix the format and sometimes the page size, and a rejected upload is far more often the wrong format than the wrong size.",
+    ],
+  }),
+  sizeTarget({
+    slug: "compress-pdf-to-250kb",
+    target: "250 KB",
+    title: "Compress PDF to 250KB Free — No Signup",
+    description:
+      "Compress a PDF to 250KB free for NVSP, e-District, ESIC and other portals that cap uploads at a quarter of a megabyte. Runs in your browser with nothing uploaded.",
+    reality:
+      "250 KB turns up on voter ID, e-District and ESIC portals, and on plenty of bank and insurance forms. It is noticeably easier than 200 KB, and most address proofs, domicile certificates and affidavits reach it on medium quality without any visible change.",
+    advice: [
+      [
+        "Medium quality first — for a one to three page certificate this usually clears 250 KB on its own.",
+        "Greyscale if it is close. A colour scan of a black-and-white document is carrying three channels it does not need.",
+        "Crop the scanner border before dropping quality. It costs nothing on the page and can be a surprising share of the file.",
+      ],
+      "If you are uploading a photograph of a document rather than a scan, retaking it in daylight and filling the frame with the page will do more for the file size than any setting here.",
+    ],
+  }),
+  sizeTarget({
+    slug: "compress-pdf-to-50kb",
+    target: "50 KB",
+    title: "Compress PDF to 50KB — What Is Actually Possible",
+    description:
+      "50KB is reachable for a single-page document and impossible for most scans. What the limit really means, how to get there, and when the answer is fewer pages.",
+    reality:
+      "50 KB is the hardest of the common targets, and it is worth being blunt: for a multi-page colour scan it is not achievable at any quality anyone would accept. For a single page — one certificate, one ID, one signature — it is reachable, and that is almost always what a 50 KB field is asking for.",
+    advice: [
+      [
+        "Reduce to the one page that was requested. This is the step that decides whether 50 KB is possible at all.",
+        "Greyscale and low quality together. At one page the result is still perfectly readable.",
+        "Crop hard. Margins and scanner borders are pure cost at this size.",
+      ],
+      "If a single page at low quality and greyscale still will not fit, the source is the problem: a photograph taken at full phone resolution carries far more detail than the limit allows. Rescanning at 150 DPI rather than 600 will get you there where compression cannot.",
+    ],
+  }),
+  sizeTarget({
+    slug: "compress-pdf-for-government-form",
+    target: "a government portal limit",
+    title: "Compress PDF for a Government Form Upload",
+    description:
+      "Get a PDF under the 100KB, 200KB or 500KB cap on UPSC, SSC, RRB, IBPS and state portal forms — plus the rules that reject an upload even when the size is right.",
+    reality:
+      "Indian government portals almost all follow the same pattern: a hard cap of 100 KB, 200 KB, 250 KB or 500 KB per document, set because lakhs of candidates upload at once and NIC guidelines standardised the numbers. The cap is per file, not per application, which is the detail that solves most people's problem.",
+    advice: [
+      "The order that works, and it starts before compression:",
+      [
+        "Upload only the document that was asked for. A single certificate, not the folder it lives in. This alone fixes the majority of oversized uploads.",
+        "Medium quality, then check. Most single certificates clear 200 KB here.",
+        "Greyscale next — the largest saving available on a black-and-white document, and never a reason for rejection.",
+        "Low quality last, and only for a page or two, where it stays entirely legible.",
+      ],
+      "Then check the rules that are not about size, because they cause at least as many rejections: the accepted format (many portals want PDF for documents and JPG for the photograph and signature), the page size, and whether the file is encrypted — a password-protected bank statement will be refused even at 20 KB.",
+    ],
+  }),
+  sizeTarget({
     slug: "compress-pdf-to-100kb",
     target: "100 KB",
     title: "Compress PDF to 100KB — What Is Actually Possible",
