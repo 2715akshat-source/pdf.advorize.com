@@ -16,6 +16,8 @@
 import { readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
 import { tools } from "./tools";
+import { variants } from "./variants";
+import { posts } from "../content/posts";
 
 export type Route = {
   path: string;
@@ -57,18 +59,20 @@ function walk(dir: string, segments: string[], out: Route[]) {
     if (!dirent.isDirectory()) continue;
 
     if (isDynamic(entry)) {
-      /* `[tool]` is the only dynamic segment on this site, and its params come
-         from the registry. Its pages are all rendered by the same file, so
-         they share that file's date — or the registry's, if the copy on them
+      /* A dynamic segment is expanded from whatever generates its static
+         params. Its pages are all rendered by the same file, so they share
+         that file's date — or the content module's, if the copy on them
          changed more recently than the template did. */
+      const expand = EXPANDERS[entry];
+      if (!expand) continue;
       const template = readdirSync(full).find((e) => PAGE.test(e));
       if (!template) continue;
       const templateDate = statSync(join(full, template)).mtime;
-      const registryDate = registryModified();
-      const lastModified =
-        registryDate > templateDate ? registryDate : templateDate;
-      for (const tool of tools) {
-        out.push({ path: `/${tool.slug}`, lastModified });
+      const source = modified(expand.source);
+      const lastModified = source > templateDate ? source : templateDate;
+      const prefix = segments.length ? `/${segments.join("/")}` : "";
+      for (const child of expand.slugs()) {
+        out.push({ path: `${prefix}/${child}`, lastModified });
       }
       continue;
     }
@@ -77,9 +81,31 @@ function walk(dir: string, segments: string[], out: Route[]) {
   }
 }
 
-function registryModified(): Date {
+/**
+ * One entry per dynamic segment in the app directory. `source` is the file
+ * whose date the generated pages inherit, since that is where their copy
+ * actually lives.
+ */
+const EXPANDERS: Record<
+  string,
+  { slugs: () => string[]; source: string[] }
+> = {
+  "[tool]": {
+    slugs: () => [
+      ...tools.map((t) => t.slug),
+      ...variants.map((v) => v.slug),
+    ],
+    source: ["src", "lib", "tools.ts"],
+  },
+  "[post]": {
+    slugs: () => posts.map((p) => p.slug),
+    source: ["src", "content", "posts.ts"],
+  },
+};
+
+function modified(parts: string[]): Date {
   try {
-    return statSync(join(process.cwd(), "src", "lib", "tools.ts")).mtime;
+    return statSync(join(process.cwd(), ...parts)).mtime;
   } catch {
     return new Date();
   }
@@ -90,7 +116,10 @@ function fallback(): Route[] {
   const now = new Date();
   return [
     { path: "/", lastModified: now },
+    { path: "/blog", lastModified: now },
     ...tools.map((t) => ({ path: `/${t.slug}`, lastModified: now })),
+    ...variants.map((v) => ({ path: `/${v.slug}`, lastModified: now })),
+    ...posts.map((p) => ({ path: `/blog/${p.slug}`, lastModified: now })),
   ];
 }
 

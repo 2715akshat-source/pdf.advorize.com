@@ -13,6 +13,24 @@ const nextConfig: NextConfig = {
   outputFileTracingIncludes: {
     "/sitemap.xml": ["./src/app/**/page.tsx", "./src/lib/tools.ts"],
   },
+
+  /*
+   * Slugs people and other sites guess at. A permanent redirect keeps the
+   * link working without publishing a second URL for the same page, which is
+   * what an alias would be.
+   */
+  async redirects() {
+    return [
+      { source: "/remove-pdf-pages", destination: "/remove-pages-from-pdf", permanent: true },
+      { source: "/delete-pdf-pages", destination: "/remove-pages-from-pdf", permanent: true },
+      { source: "/pdf-editor", destination: "/edit-pdf", permanent: true },
+      { source: "/esign-pdf", destination: "/sign-pdf", permanent: true },
+      { source: "/rearrange-pdf", destination: "/organize-pdf", permanent: true },
+      { source: "/image-to-pdf", destination: "/jpg-to-pdf", permanent: true },
+      { source: "/pdf-to-image", destination: "/pdf-to-jpg", permanent: true },
+      { source: "/free-pdf-tools", destination: "/free-pdf-tools-no-signup", permanent: true },
+    ];
+  },
 };
 
 export default nextConfig;
