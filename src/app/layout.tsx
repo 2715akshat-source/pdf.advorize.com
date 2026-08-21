@@ -7,6 +7,7 @@ import Cursor from "@/components/Cursor";
 import SmoothScroll from "@/components/SmoothScroll";
 import TransitionProvider from "@/components/TransitionProvider";
 import Feedback from "@/components/Feedback";
+import Analytics from "@/components/Analytics";
 import JsonLd from "@/components/JsonLd";
 import { BRAND, SITE_URL, buildMetadata } from "@/lib/seo";
 import { graph, organizationSchema, websiteSchema } from "@/lib/schema";
@@ -68,6 +69,7 @@ export default function RootLayout({
     <html lang="en-IN" className={`${body.variable} h-full antialiased`}>
       <body className="flex min-h-full flex-col">
         <JsonLd data={graph([organizationSchema(), websiteSchema()])} />
+        <Analytics />
 
         <script dangerouslySetInnerHTML={{ __html: THEME }} />
         <script dangerouslySetInnerHTML={{ __html: INTRO }} />

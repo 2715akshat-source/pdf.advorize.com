@@ -5,6 +5,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import Magnetic from "./Magnetic";
 import PagePicker from "./PagePicker";
 import { takeHandoff } from "@/lib/handoff";
+import { sizeBucket, track } from "@/lib/analytics";
 import { engines, type Options } from "@/lib/pdf/engines";
 import type { OutFile } from "@/lib/pdf/util";
 import type { Tool } from "@/lib/tools";
@@ -69,24 +70,46 @@ export default function ToolRunner({ tool }: { tool: Tool }) {
     if (!files.length) return;
     setBusy(true);
     reset();
+    /* How long a tool takes is the number that decides whether it is worth
+       optimising, and it is only knowable from a real device. */
+    const started = performance.now();
+    const shape = {
+      tool: tool.slug,
+      files: files.length,
+      size: sizeBucket(files.reduce((n, f) => n + f.size, 0)),
+    };
+    track("tool_run", shape);
+
     try {
       const out = await engines[tool.engine](files, opts, (f) =>
         setProgress(Math.min(1, f)),
       );
       setResults(out);
       setProgress(1);
+      track("tool_success", {
+        ...shape,
+        seconds: Math.round((performance.now() - started) / 100) / 10,
+      });
     } catch (e) {
-      setError(
+      const message =
         e instanceof Error && e.message
           ? e.message
-          : "That file could not be processed. It may be corrupt or encrypted.",
-      );
+          : "That file could not be processed. It may be corrupt or encrypted.";
+      setError(message);
+      /* The message is ours, not the document's — it names the failure mode,
+         which is the whole point of recording it. */
+      track("tool_error", { ...shape, reason: message.slice(0, 100) });
     } finally {
       setBusy(false);
     }
   };
 
   const download = (file: OutFile) => {
+    track("download", {
+      tool: tool.slug,
+      format: file.name.split(".").pop() ?? "",
+      size: sizeBucket(file.blob.size),
+    });
     const url = URL.createObjectURL(file.blob);
     const a = document.createElement("a");
     a.href = url;

@@ -6,6 +6,7 @@ import ToolGlyph from "./ToolGlyph";
 import { useTransitionNav } from "./TransitionProvider";
 import { handoff } from "@/lib/handoff";
 import { tools, type Tool } from "@/lib/tools";
+import { track } from "@/lib/analytics";
 
 const ease = [0.16, 1, 0.3, 1] as const;
 
@@ -37,6 +38,7 @@ export default function Launcher() {
 
   const accept = useCallback((list: FileList | null) => {
     if (!list?.length) return;
+    track("launcher_open", { files: list.length });
     setDropped(Array.from(list));
   }, []);
 
@@ -73,6 +75,7 @@ export default function Launcher() {
   }, [accept]);
 
   const launch = (tool: Tool) => {
+    track("launcher_pick", { tool: tool.slug, files: dropped?.length ?? 0 });
     if (dropped) handoff.files = dropped;
     setDropped(null);
     navigate(`/${tool.slug}`);

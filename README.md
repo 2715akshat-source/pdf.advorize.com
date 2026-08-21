@@ -56,6 +56,28 @@ site.
 4. Submit `https://pdf.advorize.com/sitemap.xml` in Search Console as a
    separate property — a subdomain does not inherit the main site's.
 
+## Analytics
+
+Google Analytics 4, loaded with the standard gtag snippet in
+`components/Analytics.tsx` and left out of development builds. Route changes
+go through `router.push`, which is a history event, so GA4's enhanced
+measurement counts the page views — firing our own on top would double-count
+every navigation. Override the measurement ID with `NEXT_PUBLIC_GA_ID`.
+
+On top of page views, `lib/analytics.ts` sends a small set of events:
+`tool_run`, `tool_success` (with a duration), `tool_error` (with our own error
+message), `download`, `editor_save`, `launcher_open` / `launcher_pick`, and
+`feedback_open` / `feedback_sent`.
+
+**None of them may describe a document.** No file names, no contents, nothing
+derived from them — sizes are bucketed (`5-20MB`) rather than sent, so a
+number can never identify a particular file. What is recorded is which tool
+ran, how many files it was given, how long it took and whether it worked. That
+is enough to see that compress is being abandoned on large scans, and useless
+to anyone trying to learn what was in them. Keep it that way when adding
+events: the promise on every page is that documents stay on the visitor's
+machine, and analytics is the easiest place to quietly break it.
+
 ## SEO
 
 Each tool page is a static page targeting one query, with its own title,

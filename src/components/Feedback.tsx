@@ -5,6 +5,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { usePathname } from "next/navigation";
 import Magnetic from "./Magnetic";
 import { bySlug } from "@/lib/tools";
+import { track } from "@/lib/analytics";
 
 const EASE = [0.16, 1, 0.3, 1] as const;
 
@@ -60,8 +61,9 @@ export default function Feedback() {
     if (open) {
       setSent(false);
       setError(null);
+      track("feedback_open", { page: pathname });
     }
-  }, [open]);
+  }, [open, pathname]);
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -112,6 +114,7 @@ export default function Feedback() {
         throw new Error(body.message ?? "Something went wrong.");
       }
       setSent(true);
+      track("feedback_sent", { kind, tool });
     } catch (err) {
       setError(
         err instanceof Error

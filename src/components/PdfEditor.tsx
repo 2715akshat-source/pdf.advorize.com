@@ -6,6 +6,7 @@ import Magnetic from "./Magnetic";
 import { getPdfjs } from "@/lib/pdf/pdfjs";
 import { applyEdits, type Item } from "@/lib/pdf/edit";
 import { takeHandoff } from "@/lib/handoff";
+import { sizeBucket, track } from "@/lib/analytics";
 
 const EASE = [0.16, 1, 0.3, 1] as const;
 
@@ -305,12 +306,22 @@ export default function PdfEditor() {
       /* An empty text box is one that was clicked and abandoned. */
       const real = items.filter((i) => i.type !== "text" || i.text.trim());
       setSaved(await applyEdits(file, real));
+      /* Which of the four tools people reach for is the thing worth knowing —
+         counts only, never what was typed or drawn. */
+      track("editor_save", {
+        pages: pages.length,
+        texts: real.filter((i) => i.type === "text").length,
+        drawings: real.filter((i) => i.type === "draw").length,
+        images: real.filter((i) => i.type === "image").length,
+        size: sizeBucket(file.size),
+      });
     } catch (e) {
-      setError(
+      const message =
         e instanceof Error && e.message
           ? e.message
-          : "That file could not be saved.",
-      );
+          : "That file could not be saved.";
+      setError(message);
+      track("tool_error", { tool: "edit-pdf", reason: message.slice(0, 100) });
     } finally {
       setBusy(false);
     }
@@ -318,6 +329,7 @@ export default function PdfEditor() {
 
   const download = () => {
     if (!saved) return;
+    track("download", { tool: "edit-pdf", format: "pdf", size: sizeBucket(saved.blob.size) });
     const url = URL.createObjectURL(saved.blob);
     const a = document.createElement("a");
     a.href = url;
