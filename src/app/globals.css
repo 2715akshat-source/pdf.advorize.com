@@ -1,0 +1,256 @@
+@import "tailwindcss";
+
+/*
+ * Theme. Light is the default; dark is applied either by the visitor's own
+ * choice (data-theme on <html>, set before first paint by the inline script
+ * in layout.tsx) or by their system setting when they have not chosen.
+ * Every component reads these four variables, so nothing else needs to know
+ * which theme is running.
+ */
+:root {
+  --bg: #ffffff;
+  --fg: #0a0a0a;
+  --accent: #ff4f18;
+  --muted: #767676;
+  --line: rgba(10, 10, 10, 0.12);
+  --card: #f6f6f5;
+  --radius: 22px;
+  color-scheme: light;
+}
+
+:root[data-theme="dark"] {
+  --bg: #0b0d10;
+  --fg: #f4f5f7;
+  --accent: #ff5f2e;
+  --muted: #9aa1aa;
+  --line: rgba(255, 255, 255, 0.16);
+  --card: #12151a;
+  color-scheme: dark;
+}
+
+/*
+ * Light is the default for everyone, system setting included — dark is opt-in
+ * through the switch in the header, which is what sets data-theme.
+ */
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-fg: var(--fg);
+  --color-accent: var(--accent);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-card: var(--card);
+  --font-sans: var(--font-body);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html[data-theme-switching] *,
+html[data-theme-switching] *::before,
+html[data-theme-switching] *::after {
+  transition:
+    background-color 0.45s ease,
+    border-color 0.45s ease,
+    color 0.45s ease,
+    fill 0.45s ease !important;
+}
+
+html {
+  background: var(--bg);
+}
+
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-body), system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  /* `clip` rather than `hidden` — `hidden` makes the body a scroll
+     container and silently breaks `position: sticky` further down. */
+  overflow-x: clip;
+}
+
+/* Hide the native cursor only on devices with a real pointer. */
+@media (pointer: fine) {
+  body,
+  a,
+  button {
+    cursor: none;
+  }
+}
+
+::selection {
+  background: var(--accent);
+  color: #fff;
+}
+
+/* Oversized headline type that scales with the viewport. */
+.display {
+  font-weight: 500;
+  line-height: 0.95;
+  letter-spacing: -0.035em;
+}
+
+/* Shared page gutter. */
+.shell {
+  padding-inline: 20px;
+}
+@media (min-width: 768px) {
+  .shell {
+    padding-inline: 40px;
+  }
+}
+
+/*
+ * First-landing intro curtain. It is the page-switch curtain in
+ * TransitionProvider — same five panels, same lift, same easing — except it
+ * starts already covering and only plays the exit.
+ *
+ * This lives in CSS, and the markup is injected by the inline script in the
+ * layout, for two reasons: it paints on the very first frame instead of
+ * waiting for React to hydrate, and it keeps the curtain out of the
+ * server-rendered HTML that crawlers read.
+ */
+html[data-intro],
+html[data-intro] body {
+  overflow: hidden;
+}
+
+/* Rendered on every page, but only ever shown on a first landing. */
+.intro {
+  display: none;
+}
+
+html[data-intro] .intro {
+  position: fixed;
+  inset: 0;
+  z-index: 95;
+  display: flex;
+  pointer-events: none;
+}
+
+.intro-panel {
+  flex: 1;
+  background: var(--fg);
+  animation: intro-lift 0.6s cubic-bezier(0.76, 0, 0.24, 1) forwards;
+}
+
+.intro-label {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* the panels are --fg, so the wordmark has to be --bg in both themes */
+  color: var(--bg);
+}
+
+.intro-wordmark {
+  width: min(46vw, 420px);
+  aspect-ratio: 900 / 270;
+  background-color: var(--bg);
+  -webkit-mask: url(/wordmark.png) no-repeat center / contain;
+  mask: url(/wordmark.png) no-repeat center / contain;
+  animation:
+    intro-label-in 0.5s cubic-bezier(0.16, 1, 0.3, 1) both,
+    intro-label-out 0.35s ease 0.85s forwards;
+}
+
+@keyframes intro-lift {
+  to {
+    transform: translateY(-100%);
+  }
+}
+
+@keyframes intro-label-in {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+}
+
+@keyframes intro-label-out {
+  to {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+
+/*
+ * ---------------------------------------------------------------------------
+ * Tool surfaces
+ * ---------------------------------------------------------------------------
+ * Everything below is specific to the tool runner. The rest of this file is
+ * the same theme, type scale and curtain as advorize.com, so a visitor moving
+ * between the two sites never crosses a seam.
+ */
+
+/* The drop target is a dashed well that lights up under a dragged file. */
+.dropzone {
+  border: 1.5px dashed var(--line);
+  border-radius: 28px;
+  transition:
+    border-color 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+    background 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.dropzone[data-over="true"] {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 8%, transparent);
+}
+
+/* Native form controls, restyled once so every tool option matches. */
+.field {
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--fg);
+  padding: 12px 18px;
+  font-size: 15px;
+  transition: border-color 0.3s ease;
+}
+.field:hover {
+  border-color: var(--fg);
+}
+.field:focus-visible {
+  outline: none;
+  border-color: var(--accent);
+}
+select.field {
+  appearance: none;
+  background-image: linear-gradient(45deg, transparent 50%, currentColor 50%),
+    linear-gradient(135deg, currentColor 50%, transparent 50%);
+  background-position: calc(100% - 20px) 55%, calc(100% - 15px) 55%;
+  background-size: 5px 5px, 5px 5px;
+  background-repeat: no-repeat;
+  padding-right: 40px;
+}
+
+/* Underline that grows from the left — the nav link treatment, reusable. */
+.underline-grow {
+  position: relative;
+}
+.underline-grow::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -2px;
+  height: 1px;
+  width: 0;
+  background: currentColor;
+  transition: width 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.underline-grow:hover::after {
+  width: 100%;
+}
