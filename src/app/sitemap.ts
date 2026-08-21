@@ -1,25 +1,32 @@
 import type { MetadataRoute } from "next";
-import { tools } from "@/lib/tools";
+import { routes } from "@/lib/routes";
 import { absolute } from "@/lib/seo";
+import { bySlug } from "@/lib/tools";
 
-/** Submit https://pdf.advorize.com/sitemap.xml in Search Console. */
+/**
+ * Generated from the routes that exist, at request time — see lib/routes.ts.
+ * Submit https://pdf.advorize.com/sitemap.xml in Search Console.
+ */
+export const dynamic = "force-dynamic";
+
+/** The tools worth pointing a crawler at first. */
+const HEADLINE = new Set([
+  "edit-pdf",
+  "merge-pdf",
+  "compress-pdf",
+  "split-pdf",
+]);
+
 export default function sitemap(): MetadataRoute.Sitemap {
-  const now = new Date();
-  return [
-    {
-      url: absolute("/"),
-      lastModified: now,
-      changeFrequency: "weekly",
-      priority: 1,
-    },
-    ...tools.map((t) => ({
-      url: absolute(`/${t.slug}`),
-      lastModified: now,
-      changeFrequency: "monthly" as const,
-      /* The three tools with real search volume carry the weight. */
-      priority: ["merge-pdf", "compress-pdf", "split-pdf"].includes(t.slug)
-        ? 0.9
-        : 0.7,
-    })),
-  ];
+  return routes().map(({ path, lastModified }) => {
+    const home = path === "/";
+    const slug = path.slice(1);
+
+    return {
+      url: absolute(path),
+      lastModified,
+      changeFrequency: home ? ("weekly" as const) : ("monthly" as const),
+      priority: home ? 1 : HEADLINE.has(slug) ? 0.9 : bySlug(slug) ? 0.7 : 0.5,
+    };
+  });
 }
