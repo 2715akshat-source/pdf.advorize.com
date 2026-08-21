@@ -1,6 +1,16 @@
 import type { NextConfig } from "next";
 
+/*
+ * Deployments normalise file timestamps for reproducible builds — on Vercel
+ * every file comes back as 2018-10-20 — so an mtime cannot date a page in
+ * production. This is baked in at build time and used wherever a file date
+ * turns out to be one of those placeholders.
+ */
+const BUILD_TIME = new Date().toISOString();
+
 const nextConfig: NextConfig = {
+  env: { BUILD_TIME },
+
   /* Every tool runs in the browser, so every page is static. */
   reactStrictMode: true,
 

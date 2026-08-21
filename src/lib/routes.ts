@@ -12,6 +12,13 @@
  * what puts it there. If it ever is not — an unusual runtime, a bundler that
  * traces differently — `fallback()` still returns every route, just without
  * the per-file dates, so the sitemap can never come back empty.
+ *
+ * File dates need one guard. Deployments normalise timestamps for
+ * reproducible builds, and Vercel in particular hands every file the same
+ * 2018 placeholder — which would tell a crawler that a page published today
+ * has not changed in eight years. Anything implausible falls back to the
+ * build time, and posts use their own editorial date, which is the better
+ * signal anyway.
  */
 import { readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
@@ -27,6 +34,19 @@ export type Route = {
 const APP_DIR = join(process.cwd(), "src", "app");
 
 const PAGE = /^page\.(tsx|ts|jsx|js|mdx)$/;
+
+/** Baked in at build time; see next.config.ts. */
+const BUILT = new Date(process.env.BUILD_TIME ?? Date.now());
+
+/**
+ * A file date is only usable if it looks like one. Build systems reset mtimes
+ * to a fixed epoch, so anything older than this site is a placeholder rather
+ * than a fact about the page.
+ */
+const REAL_DATES_START = new Date("2026-01-01");
+
+const dated = (candidate: Date) =>
+  candidate > REAL_DATES_START ? candidate : BUILT;
 
 /** Route groups `(marketing)` and private folders `_lib` are not segments. */
 const isGroup = (name: string) => name.startsWith("(") && name.endsWith(")");
@@ -44,7 +64,7 @@ function walk(dir: string, segments: string[], out: Route[]) {
   const page = entries.find((e) => PAGE.test(e));
   if (page) {
     const path = segments.length ? `/${segments.join("/")}` : "/";
-    out.push({ path, lastModified: statSync(join(dir, page)).mtime });
+    out.push({ path, lastModified: dated(statSync(join(dir, page)).mtime) });
   }
 
   for (const entry of entries) {
@@ -69,10 +89,14 @@ function walk(dir: string, segments: string[], out: Route[]) {
       if (!template) continue;
       const templateDate = statSync(join(full, template)).mtime;
       const source = modified(expand.source);
-      const lastModified = source > templateDate ? source : templateDate;
+      const lastModified = dated(source > templateDate ? source : templateDate);
       const prefix = segments.length ? `/${segments.join("/")}` : "";
       for (const child of expand.slugs()) {
-        out.push({ path: `${prefix}/${child}`, lastModified });
+        out.push({
+          path: `${prefix}/${child.slug}`,
+          /* a written page dates itself better than any file can */
+          lastModified: child.date ? new Date(child.date) : lastModified,
+        });
       }
       continue;
     }
@@ -88,17 +112,17 @@ function walk(dir: string, segments: string[], out: Route[]) {
  */
 const EXPANDERS: Record<
   string,
-  { slugs: () => string[]; source: string[] }
+  { slugs: () => { slug: string; date?: string }[]; source: string[] }
 > = {
   "[tool]": {
     slugs: () => [
-      ...tools.map((t) => t.slug),
-      ...variants.map((v) => v.slug),
+      ...tools.map((t) => ({ slug: t.slug })),
+      ...variants.map((v) => ({ slug: v.slug })),
     ],
     source: ["src", "lib", "tools.ts"],
   },
   "[post]": {
-    slugs: () => posts.map((p) => p.slug),
+    slugs: () => posts.map((p) => ({ slug: p.slug, date: p.date })),
     source: ["src", "content", "posts.ts"],
   },
 };
@@ -113,13 +137,16 @@ function modified(parts: string[]): Date {
 
 /** Every route, without touching the filesystem. */
 function fallback(): Route[] {
-  const now = new Date();
+  const now = BUILT;
   return [
     { path: "/", lastModified: now },
     { path: "/blog", lastModified: now },
     ...tools.map((t) => ({ path: `/${t.slug}`, lastModified: now })),
     ...variants.map((v) => ({ path: `/${v.slug}`, lastModified: now })),
-    ...posts.map((p) => ({ path: `/blog/${p.slug}`, lastModified: now })),
+    ...posts.map((p) => ({
+      path: `/blog/${p.slug}`,
+      lastModified: new Date(p.date),
+    })),
   ];
 }
 
