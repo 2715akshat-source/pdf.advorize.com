@@ -59,8 +59,8 @@ export default function Nav() {
             <TransitionLink href="/merge-pdf" className="underline-grow">
               Merge
             </TransitionLink>
-            <TransitionLink href="/compress-pdf" className="underline-grow">
-              Compress
+            <TransitionLink href="/blog" className="underline-grow">
+              Guides
             </TransitionLink>
             <a
               href={PARENT_URL}

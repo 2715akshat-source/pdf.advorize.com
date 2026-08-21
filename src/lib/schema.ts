@@ -44,10 +44,13 @@ export const toolSchema = (tool: Tool) => ({
   publisher: { "@id": `${PARENT_URL}/#organization` },
 });
 
-export const faqSchema = (tool: Tool) => ({
+export const faqSchema = (
+  path: string,
+  faqs: { q: string; a: string }[],
+) => ({
   "@type": "FAQPage",
-  "@id": `${absolute(`/${tool.slug}`)}#faq`,
-  mainEntity: tool.faqs.map((f) => ({
+  "@id": `${absolute(path)}#faq`,
+  mainEntity: faqs.map((f) => ({
     "@type": "Question",
     name: f.q,
     acceptedAnswer: { "@type": "Answer", text: f.a },
