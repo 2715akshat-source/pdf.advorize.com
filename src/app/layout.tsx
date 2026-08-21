@@ -6,6 +6,7 @@ import Footer from "@/components/Footer";
 import Cursor from "@/components/Cursor";
 import SmoothScroll from "@/components/SmoothScroll";
 import TransitionProvider from "@/components/TransitionProvider";
+import Feedback from "@/components/Feedback";
 import JsonLd from "@/components/JsonLd";
 import { BRAND, SITE_URL, buildMetadata } from "@/lib/seo";
 import { graph, organizationSchema, websiteSchema } from "@/lib/schema";
@@ -90,6 +91,7 @@ export default function RootLayout({
           <Nav />
           <main className="flex-1">{children}</main>
           <Footer />
+          <Feedback />
         </TransitionProvider>
       </body>
     </html>
