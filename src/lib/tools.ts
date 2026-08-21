@@ -38,6 +38,8 @@ export type Tool = {
   related: string[];
   action: string;
   fields?: Field[];
+  /** Tools whose interface is not the shared file-in / file-out runner. */
+  custom?: "editor";
 };
 
 const PDF = "application/pdf,.pdf";
@@ -52,6 +54,54 @@ const PAGES_FIELD = (label: string, placeholder: string, help: string): Field =>
 });
 
 export const tools: Tool[] = [
+  {
+    slug: "edit-pdf",
+    name: "Edit PDF",
+    tagline: "Type on a PDF, sign it, highlight it, then download it.",
+    engine: "editor",
+    accept: PDF,
+    category: "Edit",
+    custom: "editor",
+    action: "Save the edited PDF",
+    title: "Edit PDF Online Free — Add Text, Sign and Download",
+    description:
+      "Open a PDF, type on it, draw your signature, highlight lines and drop in a logo, then download it. Free, no sign-up, and the file never leaves your browser.",
+    h1: "Edit a PDF and download it",
+    intro:
+      "The thing most people actually want from a PDF tool: open the file, add what is missing, and save it. Type anywhere on the page, sign it by hand, highlight a clause, drop in a stamp or a logo — then download a PDF whose original pages are untouched underneath.",
+    steps: [
+      "Open the PDF you need to change.",
+      "Pick a tool — text, freehand drawing, highlighter or image — and work straight on the page.",
+      "Save, and download the edited file.",
+    ],
+    faqs: [
+      {
+        q: "Can I change the text that is already in the PDF?",
+        a: "No — this adds to a page rather than rewriting it. A PDF stores text as positioned glyphs, not as editable paragraphs, so genuine reflow means going back to the source document. Covering a line and typing over it is the practical fix, and it is what most editors do too.",
+      },
+      {
+        q: "How do I sign a document?",
+        a: "Choose Draw and sign with your trackpad, mouse or finger — on a phone it is close to signing on paper. If you already have a signature saved as a PNG, use Image instead and drag it into place.",
+      },
+      {
+        q: "Does editing ruin the rest of the file?",
+        a: "No. Your additions are written on top of the original pages, so the existing text stays selectable and searchable and the images keep their resolution. Nothing is flattened into a picture.",
+      },
+      {
+        q: "Is my document uploaded while I edit it?",
+        a: "Never. The pages are rendered and the file is rewritten entirely inside this tab — which is exactly why a contract or a bank statement is safe to open here. Turn off your Wi-Fi and the editor keeps working.",
+      },
+    ],
+    keywords: [
+      "edit pdf",
+      "edit pdf online free",
+      "add text to pdf",
+      "sign pdf online",
+      "write on pdf free",
+      "pdf editor no sign up",
+    ],
+    related: ["watermark-pdf", "add-page-numbers", "merge-pdf", "flatten-pdf"],
+  },
   {
     slug: "merge-pdf",
     name: "Merge PDF",
@@ -93,7 +143,7 @@ export const tools: Tool[] = [
       "merge pdf without upload",
       "pdf merger free",
     ],
-    related: ["split-pdf", "organize-pdf", "compress-pdf", "remove-pages-from-pdf"],
+    related: ["split-pdf", "organize-pdf", "compress-pdf", "edit-pdf"],
   },
   {
     slug: "split-pdf",
@@ -732,7 +782,7 @@ export const tools: Tool[] = [
       "number pdf pages online",
       "pdf page numbering free",
     ],
-    related: ["watermark-pdf", "merge-pdf", "organize-pdf", "crop-pdf"],
+    related: ["edit-pdf", "watermark-pdf", "merge-pdf", "crop-pdf"],
     fields: [
       {
         key: "position",
@@ -800,7 +850,7 @@ export const tools: Tool[] = [
       "stamp draft on pdf",
       "confidential watermark pdf",
     ],
-    related: ["add-page-numbers", "flatten-pdf", "edit-pdf-metadata", "compress-pdf"],
+    related: ["edit-pdf", "add-page-numbers", "flatten-pdf", "edit-pdf-metadata"],
     fields: [
       { key: "text", label: "Watermark text", type: "text", default: "CONFIDENTIAL" },
       { key: "size", label: "Text size (pt)", type: "number", default: "52", min: 8, max: 200 },
@@ -904,7 +954,7 @@ export const tools: Tool[] = [
       "lock pdf form online",
       "make pdf non editable",
     ],
-    related: ["watermark-pdf", "compress-pdf", "edit-pdf-metadata", "unlock-pdf"],
+    related: ["edit-pdf", "watermark-pdf", "compress-pdf", "unlock-pdf"],
     fields: [
       {
         key: "scale",

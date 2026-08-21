@@ -433,7 +433,38 @@ function Meta() {
   );
 }
 
+/** A pen writing a line onto a sheet. */
+function Edit() {
+  return (
+    <Big>
+      <g transform="translate(34 0)">
+        <Sheet lines={2} />
+      </g>
+      {/* the nib travels along the line it is drawing */}
+      <motion.g
+        variants={{ rest: { x: 0 }, active: { x: 14 } }}
+        transition={spring}
+      >
+        <path d="M74 30 l12 -12 l5 5 l-12 12 l-6 1 z" {...PAGE} strokeLinecap="round" />
+        <path d="M84 20 l5 5" {...PAGE} strokeLinecap="round" />
+      </motion.g>
+      <motion.line
+        x1="60"
+        y1="36"
+        x2="84"
+        y2="36"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        variants={{ rest: { pathLength: 0, opacity: 0 }, active: { pathLength: 1, opacity: 0.5 } }}
+        transition={spring}
+      />
+    </Big>
+  );
+}
+
 const GLYPHS: Record<string, React.ReactNode> = {
+  "edit-pdf": <Edit />,
   "merge-pdf": <Merge />,
   "split-pdf": <Split />,
   "compress-pdf": <Compress />,

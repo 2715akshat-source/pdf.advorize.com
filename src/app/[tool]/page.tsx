@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import ToolRunner from "@/components/ToolRunner";
+import PdfEditor from "@/components/PdfEditor";
 import Faq from "@/components/Faq";
 import JsonLd from "@/components/JsonLd";
 import TransitionLink from "@/components/TransitionLink";
@@ -82,23 +83,26 @@ export default async function ToolPage({
           <span className="text-fg">{tool.category}</span>
         </nav>
 
-        <h1 className="display max-w-[16ch] text-[10vw] leading-[0.95] md:text-[5vw]">
+        {/* One line from md up — the headlines are written short enough for
+            it, and a two-line title over a one-line intro reads as a stack of
+            fragments rather than a masthead. */}
+        <h1 className="display text-[9vw] leading-[1] md:text-[3.9vw] md:whitespace-nowrap">
           {tool.h1.split(" ").map((word, i) => (
             <span key={`${word}-${i}`} className="inline-block pr-[0.22em]">
-              <Reveal delay={0.05 + i * 0.05}>{word}</Reveal>
+              <Reveal immediate delay={0.05 + i * 0.05}>{word}</Reveal>
             </span>
           ))}
         </h1>
 
         <FadeUp delay={0.3}>
-          <div className="mt-8 flex flex-col gap-8 md:flex-row md:items-end md:justify-between">
-            <p className="max-w-[58ch] text-lg leading-relaxed text-muted">
+          <div className="mt-10 grid items-center gap-10 md:grid-cols-[minmax(0,1fr)_auto]">
+            <p className="max-w-[54ch] text-lg leading-relaxed text-muted">
               {tool.intro}
             </p>
             {/* the glyph performs the operation once, as the page settles */}
             <ToolGlyph
               slug={tool.slug}
-              className="w-40 shrink-0 text-fg md:w-56"
+              className="w-56 shrink-0 text-fg md:w-[26vw] md:max-w-[420px]"
               play
             />
           </div>
@@ -107,16 +111,22 @@ export default async function ToolPage({
 
       {/* ------------------------------------------------------------ tool */}
       <section className="shell pt-10 pb-8 md:pt-12">
-        <div className="grid gap-12 lg:grid-cols-[minmax(0,1.55fr)_minmax(0,1fr)] lg:items-start lg:gap-16">
+        <div
+          className={
+            tool.custom
+              ? "grid gap-12"
+              : "grid gap-12 lg:grid-cols-[minmax(0,1.55fr)_minmax(0,1fr)] lg:items-start lg:gap-16"
+          }
+        >
           <FadeUp>
-            <ToolRunner tool={tool} />
+            {tool.custom === "editor" ? <PdfEditor /> : <ToolRunner tool={tool} />}
           </FadeUp>
 
-          <FadeUp delay={0.1} className="lg:sticky lg:top-32">
+          <FadeUp delay={0.1} className={tool.custom ? "" : "lg:sticky lg:top-32"}>
             <p className="text-[11px] font-semibold tracking-[0.2em] text-muted uppercase">
               How it works
             </p>
-            <ol className="mt-8">
+            <ol className={tool.custom ? "mt-8 md:grid md:grid-cols-3 md:gap-8" : "mt-8"}>
               {tool.steps.map((step, i) => (
                 <li
                   key={step}

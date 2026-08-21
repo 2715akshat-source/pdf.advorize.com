@@ -1,6 +1,6 @@
 # pdf.advorize.com
 
-Twenty PDF tools that run entirely in the visitor's browser. No upload, no
+PDF tools that run entirely in the visitor's browser. No upload, no
 account, no server-side processing — which is both the product promise and the
 reason this deploys as a static site.
 

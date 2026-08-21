@@ -8,10 +8,18 @@ export function Reveal({
   children,
   delay = 0,
   className,
+  immediate = false,
 }: {
   children: ReactNode;
   delay?: number;
   className?: string;
+  /**
+   * Plays on mount rather than on scroll. Anything above the fold should use
+   * it: an in-view trigger for content that is already in view depends on an
+   * observer firing at the right moment, and when it does not, the word stays
+   * hidden behind its own mask.
+   */
+  immediate?: boolean;
 }) {
   return (
     /* pb/-mb pair: the mask clears descenders without changing line rhythm */
@@ -19,8 +27,9 @@ export function Reveal({
       <motion.span
         className="block"
         initial={{ y: "110%" }}
-        whileInView={{ y: 0 }}
-        viewport={{ once: true, margin: "-10%" }}
+        {...(immediate
+          ? { animate: { y: 0 } }
+          : { whileInView: { y: 0 }, viewport: { once: true, margin: "-10%" } })}
         transition={{ duration: 0.9, delay, ease: [0.16, 1, 0.3, 1] }}
       >
         {children}

@@ -76,7 +76,7 @@ export default function ToolGrid() {
     <section id="tools" className="shell scroll-mt-28 py-24 md:py-32">
       <div className="flex flex-col gap-10 lg:flex-row lg:items-end lg:justify-between">
         <h2 className="display text-[11vw] leading-[0.95] md:text-[5vw]">
-          <Reveal>Twenty tools</Reveal>
+          <Reveal>{`${tools.length} tools`}</Reveal>
         </h2>
 
         <div className="lg:w-[340px]">

@@ -12,7 +12,7 @@ export const metadata: Metadata = buildMetadata({
   path: "/",
   title: "Free PDF Tools — Merge, Split & Compress in Your Browser",
   description:
-    "Twenty free PDF tools that run entirely in your browser: merge, split, compress, convert, rotate and watermark. No upload, no sign-up, no watermark on your file.",
+    "Free PDF tools that run entirely in your browser: edit, merge, split, compress, convert, rotate and sign. No upload, no sign-up, no watermark on the file you get back.",
   keywords: [
     "free pdf tools",
     "online pdf editor no upload",
@@ -97,7 +97,7 @@ export default function Home() {
             <h1 className="display text-[13vw] leading-[0.95] md:text-[7vw]">
               {"Your PDFs never leave this tab".split(" ").map((word, i) => (
                 <span key={`${word}-${i}`} className="inline-block pr-[0.22em]">
-                  <Reveal delay={0.05 + i * 0.06}>{word}</Reveal>
+                  <Reveal immediate delay={0.05 + i * 0.06}>{word}</Reveal>
                 </span>
               ))}
             </h1>
@@ -105,8 +105,8 @@ export default function Home() {
 
           <FadeUp delay={0.4}>
             <p className="text-lg leading-relaxed text-muted md:text-xl">
-              Merge, split, compress, convert, rotate, watermark and unlock —
-              twenty tools that run inside your browser. No upload step, no
+              Edit, sign, merge, split, compress, convert and unlock — every
+              one of them running inside your browser. No upload step, no
               sign-up, and no watermark on the file you get back.
             </p>
           </FadeUp>

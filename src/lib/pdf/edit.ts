@@ -43,6 +43,8 @@ export type Item =
       /** the original bytes, so the image is embedded rather than re-encoded */
       bytes: Uint8Array;
       png: boolean;
+      /** blob URL used to show the image while editing; not part of the export */
+      preview: string;
     };
 
 /** #rrggbb → the 0–1 triple pdf-lib wants. */

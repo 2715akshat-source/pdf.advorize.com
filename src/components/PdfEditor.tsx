@@ -207,7 +207,12 @@ export default function PdfEditor() {
       return;
     }
 
-    (e.target as HTMLElement).setPointerCapture(e.pointerId);
+    /* Capture on the surface, not on whatever was under the cursor, so a
+       stroke that starts on top of an existing item still belongs to the
+       page — and never let a capture failure swallow the stroke. */
+    try {
+      surface.current?.setPointerCapture(e.pointerId);
+    } catch {}
     setStroke([[at.x, at.y]]);
   };
 
@@ -270,6 +275,8 @@ export default function PdfEditor() {
     const bytes = new Uint8Array(await incoming.arrayBuffer());
     const png = /png/i.test(incoming.type) || /\.png$/i.test(incoming.name);
     const bitmap = await createImageBitmap(incoming);
+    const preview = URL.createObjectURL(incoming);
+    objectUrls.current.push(preview);
     const w = Math.min(220, pages[page].w * 0.5);
     const h = (bitmap.height / bitmap.width) * w;
     push([
@@ -284,6 +291,7 @@ export default function PdfEditor() {
         h,
         bytes,
         png,
+        preview,
       },
     ]);
     setTool("select");
@@ -513,7 +521,9 @@ export default function PdfEditor() {
             onPointerDown={onPointerDown}
             onPointerMove={onPointerMove}
             onPointerUp={onPointerUp}
-            className="relative mx-auto w-full overflow-hidden rounded-[18px] border border-line bg-white shadow-sm"
+            /* A page wider than about 820px is harder to work on, not
+               easier — the toolbar is a long way from the cursor. */
+            className="relative mx-auto w-full max-w-[820px] overflow-hidden rounded-[18px] border border-line bg-white shadow-sm"
             style={{
               aspectRatio: `${size0.w} / ${size0.h}`,
               cursor: tool === "select" ? "default" : "crosshair",
@@ -579,9 +589,7 @@ export default function PdfEditor() {
                   >
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
-                      src={URL.createObjectURL(
-                        new Blob([item.bytes as unknown as BlobPart]),
-                      )}
+                      src={item.preview}
                       alt=""
                       draggable={false}
                       className="block w-full select-none"
