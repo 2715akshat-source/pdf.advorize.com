@@ -5,6 +5,7 @@
  * counterpart to any of this.
  */
 import { PDFDocument, degrees, rgb, StandardFonts } from "pdf-lib";
+import anyToPdf from "./convert";
 import { getPdfjs } from "./pdfjs";
 import { base, parsePages, pdfBlob, zip, type OutFile } from "./util";
 
@@ -506,6 +507,7 @@ export const engines: Record<string, Engine> = {
   toJpg: pdfToImages("image/jpeg"),
   toPng: pdfToImages("image/png"),
   imageToPdf,
+  anyToPdf,
   pageNumbers,
   watermark,
   metadata,

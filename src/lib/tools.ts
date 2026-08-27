@@ -40,6 +40,8 @@ export type Tool = {
   fields?: Field[];
   /** Tools whose interface is not the shared file-in / file-out runner. */
   custom?: "editor";
+  /** Shows what each dropped file was recognised as — for `accept: "*"`. */
+  detects?: boolean;
 };
 
 const PDF = "application/pdf,.pdf";
@@ -755,6 +757,105 @@ export const tools: Tool[] = [
         ],
       },
       { key: "margin", label: "Margin (pt)", type: "number", default: "24", min: 0, max: 120 },
+    ],
+  },
+  {
+    slug: "convert-to-pdf",
+    name: "Convert to PDF",
+    tagline: "Drop any file — it works out what it is and makes a PDF of it.",
+    engine: "anyToPdf",
+    accept: "*",
+    multiple: true,
+    detects: true,
+    category: "Convert",
+    action: "Convert to PDF",
+    title: "Convert Any File to PDF Free — Auto Detect",
+    description:
+      "Convert any file to PDF free: Word, Excel, images, HEIC, Markdown, HTML, CSV or text. The format is detected for you, several files become one PDF, nothing is uploaded.",
+    h1: "Convert any file to PDF",
+    intro:
+      "Every other converter asks you to pick the format first, which is a strange question given the file is right there. Drop anything in and this reads the file itself — not its name, which is often wrong — and converts it. Add a Word document, three phone photos and a spreadsheet at once and you get one PDF, in the order you arranged them.",
+    steps: [
+      "Drop your files in — one, or a stack of different kinds.",
+      "Each is identified and shown with what it was recognised as.",
+      "Choose a page size, then convert and download.",
+    ],
+    faqs: [
+      {
+        q: "Which formats does it handle?",
+        a: "PDF, Word (.docx), Excel (.xlsx), every image your browser can open — JPG, PNG, WebP, HEIC, AVIF, GIF, BMP, SVG — and HTML, Markdown, CSV and plain text, including source code. PowerPoint, the pre-2007 Office formats (.doc, .xls) and TIFF are the notable gaps, and each one tells you what to do instead rather than failing quietly.",
+      },
+      {
+        q: "How does it know what my file is?",
+        a: "It reads the first few kilobytes and matches the signature every format starts with, so a photo saved as `document.pdf` is still recognised as a photo. Extensions are only consulted to tell apart things that are identical on disk — plain text, Markdown and CSV are all just text.",
+      },
+      {
+        q: "How close is a Word document to the original?",
+        a: "Headings, bold and italic, lists, tables and page breaks all carry over; Word's exact fonts, columns and floating images do not. It is a clean, readable document rather than a pixel match — for a pixel match, use Save as PDF inside Word itself. Nothing here can run Word's layout engine, and any browser tool that claims otherwise is uploading your file to a server that can.",
+      },
+      {
+        q: "Can I convert several files at once?",
+        a: "Yes, and by default they become a single PDF in the order you arrange the cards. Turn off Combine and you get one PDF per file, zipped together.",
+      },
+      {
+        q: "What happens if one file will not convert?",
+        a: "The rest still do. A file that cannot be read is skipped and named afterwards with the reason, so one bad attachment never costs you the other nine.",
+      },
+      {
+        q: "Is anything uploaded?",
+        a: "No. The detection, the conversion and the writing all happen in this tab — which is why a contract or a payslip is safe here. Turn off your Wi-Fi after the page loads and it still works.",
+      },
+    ],
+    keywords: [
+      "convert to pdf",
+      "any file to pdf",
+      "file to pdf converter free",
+      "word to pdf",
+      "docx to pdf online free",
+      "excel to pdf",
+      "html to pdf",
+      "convert file to pdf no sign up",
+    ],
+    related: ["merge-pdf", "jpg-to-pdf", "compress-pdf", "pdf-to-text"],
+    fields: [
+      {
+        key: "size",
+        label: "Page size",
+        type: "select",
+        default: "a4",
+        options: [
+          { value: "a4", label: "A4" },
+          { value: "letter", label: "US Letter" },
+          { value: "legal", label: "US Legal" },
+          { value: "fit", label: "Fit to image" },
+        ],
+        help: "Fit to image sizes each image page to the picture itself; documents always use A4.",
+      },
+      {
+        key: "orientation",
+        label: "Orientation",
+        type: "select",
+        default: "portrait",
+        options: [
+          { value: "portrait", label: "Portrait" },
+          { value: "landscape", label: "Landscape" },
+        ],
+      },
+      {
+        key: "margin",
+        label: "Margin (pt)",
+        type: "number",
+        default: "56",
+        min: 0,
+        max: 160,
+      },
+      {
+        key: "combine",
+        label: "Combine into one PDF",
+        type: "toggle",
+        default: "on",
+        help: "Off gives one PDF per file, zipped.",
+      },
     ],
   },
   {

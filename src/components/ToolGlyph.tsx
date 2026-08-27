@@ -473,6 +473,7 @@ const GLYPHS: Record<string, React.ReactNode> = {
   "extract-pdf-pages": <Pull away={false} />,
   "organize-pdf": <Reorder />,
   "reverse-pdf": <Reorder reverse />,
+  "convert-to-pdf": <Convert reverse />,
   "pdf-to-jpg": <Convert />,
   "pdf-to-png": <Convert />,
   "jpg-to-pdf": <Convert reverse />,

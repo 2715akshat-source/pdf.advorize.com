@@ -1,6 +1,11 @@
 /** Small helpers shared by every engine. */
 
-export type OutFile = { name: string; blob: Blob };
+export type OutFile = {
+  name: string;
+  blob: Blob;
+  /** Set when a run part-succeeded — which files were skipped, and why. */
+  note?: string;
+};
 
 /** Strips the extension so output names read like `report-merged.pdf`. */
 export function base(name: string) {

@@ -6,6 +6,7 @@ import Magnetic from "./Magnetic";
 import PagePicker from "./PagePicker";
 import { takeHandoff } from "@/lib/handoff";
 import { sizeBucket, track } from "@/lib/analytics";
+import { sniff } from "@/lib/pdf/detect";
 import { engines, type Options } from "@/lib/pdf/engines";
 import type { OutFile } from "@/lib/pdf/util";
 import type { Tool } from "@/lib/tools";
@@ -16,6 +17,8 @@ const formatBytes = (n: number) =>
   n < 1024 * 1024
     ? `${Math.max(1, Math.round(n / 1024))} KB`
     : `${(n / (1024 * 1024)).toFixed(1)} MB`;
+
+const fileKey = (f: File) => `${f.name}:${f.size}:${f.lastModified}`;
 
 /** Seeds the options object from the field defaults in the registry. */
 const initialOptions = (tool: Tool): Options =>
@@ -31,6 +34,8 @@ export default function ToolRunner({ tool }: { tool: Tool }) {
   const [error, setError] = useState<string | null>(null);
   const [results, setResults] = useState<OutFile[] | null>(null);
   const [over, setOver] = useState(false);
+  /** What each file was recognised as, for the tools that take anything. */
+  const [kinds, setKinds] = useState<Record<string, string>>({});
   const input = useRef<HTMLInputElement>(null);
   const dragging = useRef<number | null>(null);
 
@@ -40,6 +45,32 @@ export default function ToolRunner({ tool }: { tool: Tool }) {
     const handed = takeHandoff();
     if (handed?.length) setFiles(tool.multiple ? handed : handed.slice(0, 1));
   }, [tool.multiple]);
+
+  /* A drop zone that accepts anything owes the visitor an answer about what
+     it thinks each file is, before they commit to converting it. */
+  useEffect(() => {
+    if (!tool.detects || !files.length) return;
+    let live = true;
+    (async () => {
+      for (const file of files) {
+        const key = fileKey(file);
+        if (kinds[key]) continue;
+        let what: string;
+        try {
+          const { label, reason } = await sniff(file);
+          what = reason ? `${label} — not supported` : label;
+        } catch {
+          /* One unreadable file must not leave the rest of the list waiting. */
+          what = "unknown";
+        }
+        if (!live) return;
+        setKinds((p) => ({ ...p, [key]: what }));
+      }
+    })();
+    return () => {
+      live = false;
+    };
+  }, [files, tool.detects, kinds]);
 
   const reset = () => {
     setResults(null);
@@ -203,6 +234,11 @@ export default function ToolRunner({ tool }: { tool: Tool }) {
                   {String(i + 1).padStart(2, "0")}
                 </span>
                 <span className="min-w-0 flex-1 truncate">{file.name}</span>
+                {tool.detects && (
+                  <span className="shrink-0 text-sm text-muted">
+                    {kinds[fileKey(file)] ?? "reading…"}
+                  </span>
+                )}
                 <span className="shrink-0 text-sm text-muted">
                   {formatBytes(file.size)}
                 </span>
@@ -400,6 +436,12 @@ export default function ToolRunner({ tool }: { tool: Tool }) {
             className="mt-10 rounded-[28px] bg-card p-8"
           >
             <p className="display text-2xl md:text-3xl">Done.</p>
+            {/* A run that mostly worked still has to name what it skipped. */}
+            {results.find((f) => f.note) && (
+              <p className="mt-4 border-l-2 border-accent pl-4 text-[15px] leading-relaxed whitespace-pre-line">
+                {results.find((f) => f.note)!.note}
+              </p>
+            )}
             <ul className="mt-6">
               {results.map((file) => (
                 <li
