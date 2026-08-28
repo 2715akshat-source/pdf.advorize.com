@@ -383,10 +383,15 @@ const HEADINGS: Record<string, 1 | 2 | 3> = {
  * saved page drags along with it.
  */
 export async function htmlBlocks(file: File): Promise<Block[]> {
-  const doc = new DOMParser().parseFromString(await decode(file), "text/html");
+  return htmlStringBlocks(await decode(file), true);
+}
+
+/** The same walk over markup already in hand — EPUB chapters arrive this way. */
+export function htmlStringBlocks(source: string, useTitle: boolean): Block[] {
+  const doc = new DOMParser().parseFromString(source, "text/html");
   const blocks: Block[] = [];
 
-  const title = doc.title?.trim();
+  const title = useTitle ? doc.title?.trim() : "";
   if (title) blocks.push({ type: "heading", level: 1, runs: [{ text: title }] });
 
   const runsOf = (el: Element): Inline[] => {
@@ -543,4 +548,125 @@ export async function textBlocks(file: File): Promise<Block[]> {
     .map((para) => para.trim())
     .filter(Boolean)
     .map((para) => ({ type: "para", runs: [{ text: para }] }) as Block);
+}
+
+/* ----------------------------------------------------------------- email */
+
+/**
+ * An .eml is headers, a blank line, then the body — often several bodies, in
+ * a MIME tree. We print the headers people actually want on a saved email,
+ * then the best body part: the HTML one if it is there, since that is what
+ * the sender wrote, and the plain-text one otherwise.
+ */
+export async function emlBlocks(file: File): Promise<Block[]> {
+  const source = (await decode(file)).replace(/\r\n/g, "\n");
+  const split = source.indexOf("\n\n");
+  const rawHeaders = split < 0 ? source : source.slice(0, split);
+  const body = split < 0 ? "" : source.slice(split + 2);
+
+  /* A header folded across lines continues with leading whitespace. */
+  const headers = new Map<string, string>();
+  for (const line of rawHeaders.replace(/\n[ \t]+/g, " ").split("\n")) {
+    const at = line.indexOf(":");
+    if (at < 0) continue;
+    const name = line.slice(0, at).toLowerCase();
+    if (!headers.has(name)) headers.set(name, decodeWords(line.slice(at + 1).trim()));
+  }
+
+  const blocks: Block[] = [];
+  const subject = headers.get("subject");
+  if (subject) blocks.push({ type: "heading", level: 1, runs: [{ text: subject }] });
+
+  const rows = ["from", "to", "cc", "date"]
+    .filter((k) => headers.get(k))
+    .map((k) => [k[0].toUpperCase() + k.slice(1), headers.get(k)!]);
+  if (rows.length) blocks.push({ type: "table", rows, header: false });
+  blocks.push({ type: "rule" });
+
+  const part = bestPart(body, headers.get("content-type") ?? "");
+  if (part.html) blocks.push(...htmlStringBlocks(part.text, false));
+  else
+    for (const para of part.text.split(/\n\s*\n/))
+      if (para.trim())
+        blocks.push({ type: "para", runs: [{ text: para.replace(/\n/g, " ").trim() }] });
+
+  return blocks;
+}
+
+/** Walks a MIME body far enough to find the part worth printing. */
+function bestPart(
+  body: string,
+  contentType: string,
+  depth = 0,
+): { text: string; html: boolean } {
+  const boundary = contentType.match(/boundary="?([^";]+)"?/i)?.[1];
+  if (boundary && depth < 4) {
+    const parts = body.split(`--${boundary}`).slice(1, -1);
+    const read = parts.map((raw) => {
+      const at = raw.indexOf("\n\n");
+      const head = at < 0 ? raw : raw.slice(0, at);
+      const type = head.match(/content-type:\s*([^;\n]+)([^\n]*)/i);
+      return {
+        type: (type?.[1] ?? "text/plain").toLowerCase().trim(),
+        params: (type?.[2] ?? "") + (head.match(/boundary="?[^";]+"?/i)?.[0] ?? ""),
+        encoding: head.match(/content-transfer-encoding:\s*(\S+)/i)?.[1] ?? "",
+        body: at < 0 ? "" : raw.slice(at + 2),
+      };
+    });
+    /* Prefer the richest part, then recurse into nested multiparts. */
+    const nested = read.find((p) => p.type.startsWith("multipart/"));
+    const html = read.find((p) => p.type === "text/html");
+    const plain = read.find((p) => p.type === "text/plain");
+    const pick = html ?? plain;
+    if (pick)
+      return { text: transferDecode(pick.body, pick.encoding), html: !!html };
+    if (nested) return bestPart(nested.body, nested.params, depth + 1);
+    return { text: "", html: false };
+  }
+  return { text: body, html: /text\/html/i.test(contentType) };
+}
+
+/** Quoted-printable and base64 are the two encodings mail actually uses. */
+function transferDecode(body: string, encoding: string): string {
+  if (/base64/i.test(encoding)) {
+    try {
+      return new TextDecoder().decode(
+        Uint8Array.from(atob(body.replace(/\s+/g, "")), (c) => c.charCodeAt(0)),
+      );
+    } catch {
+      return body;
+    }
+  }
+  if (/quoted-printable/i.test(encoding))
+    return body
+      .replace(/=\n/g, "")
+      .replace(/=([0-9A-F]{2})/gi, (_, hex) =>
+        String.fromCharCode(parseInt(hex, 16)),
+      );
+  return body;
+}
+
+/** RFC 2047 encodes non-ASCII header text; subjects are full of it. */
+function decodeWords(value: string): string {
+  return value.replace(
+    /=\?([^?]+)\?([BQ])\?([^?]*)\?=/gi,
+    (whole, charset, kind, data) => {
+      try {
+        const bytes =
+          kind.toUpperCase() === "B"
+            ? Uint8Array.from(atob(data), (c) => c.charCodeAt(0))
+            : Uint8Array.from(
+                data
+                  .replace(/_/g, " ")
+                  .replace(/=([0-9A-F]{2})/gi, (_m: string, h: string) =>
+                    String.fromCharCode(parseInt(h, 16)),
+                  ),
+                (c: string) => c.charCodeAt(0),
+              );
+        return new TextDecoder(charset).decode(bytes);
+      } catch {
+        return whole;
+      }
+    },
+  );
 }

@@ -12,8 +12,18 @@ export type Kind =
   | "pdf"
   | "image"
   | "svg"
+  | "psd"
+  | "tiff"
   | "docx"
   | "xlsx"
+  | "pptx"
+  | "odt"
+  | "ods"
+  | "odp"
+  | "epub"
+  | "iwork"
+  | "rtf"
+  | "eml"
   | "html"
   | "markdown"
   | "csv"
@@ -62,26 +72,38 @@ async function insideZip(file: File): Promise<Detected> {
 
   if (has("word/")) return { kind: "docx", label: "Word document" };
   if (has("xl/")) return { kind: "xlsx", label: "Excel spreadsheet" };
-  if (has("ppt/"))
+  if (has("ppt/")) return { kind: "pptx", label: "PowerPoint deck" };
+
+  /* An EPUB is a zip whose spine is named in a manifest; the container is
+     the reliable marker, since the content folder is named by the publisher. */
+  if (names.includes("META-INF/container.xml") || has("OEBPS") || has("EPUB"))
+    return { kind: "epub", label: "EPUB book" };
+
+  /* Pages, Numbers and Keynote store their own format, but every one of them
+     also carries the preview the Finder shows — which is a real PDF. */
+  if (has("Index/") || has("QuickLook/") || names.includes("preview.jpg")) {
+    const app =
+      { pages: "Pages document", numbers: "Numbers spreadsheet", key: "Keynote deck" }[
+        ext(file.name)
+      ] ?? "iWork document";
+    if (names.some((n) => /^(QuickLook\/Preview\.pdf|preview\.jpg)$/.test(n)))
+      return { kind: "iwork", label: app };
     return {
       kind: "unsupported",
-      label: "PowerPoint deck",
+      label: app,
       reason:
-        "PowerPoint slides need a real slide renderer, which cannot run in a browser tab. Export the deck to PDF from PowerPoint or Keynote instead.",
+        "This file was saved without the preview this tool reads. Open it and export to PDF, or re-save it with previews turned on.",
     };
-  if (has("OEBPS") || has("EPUB"))
-    return {
-      kind: "unsupported",
-      label: "EPUB book",
-      reason: "EPUB books are not supported yet.",
-    };
-  if (names.includes("content.xml"))
-    return {
-      kind: "unsupported",
-      label: "OpenDocument file",
-      reason:
-        "OpenDocument files (.odt, .ods) are not supported yet. Save the file as .docx or .xlsx first.",
-    };
+  }
+
+  if (names.includes("content.xml")) {
+    const type = await zipText(names, file);
+    if (type === "text") return { kind: "odt", label: "OpenDocument text" };
+    if (type === "spreadsheet") return { kind: "ods", label: "OpenDocument spreadsheet" };
+    if (type === "presentation") return { kind: "odp", label: "OpenDocument slides" };
+    return { kind: "odt", label: "OpenDocument file" };
+  }
+
   return {
     kind: "unsupported",
     label: "zip archive",
@@ -90,15 +112,38 @@ async function insideZip(file: File): Promise<Detected> {
   };
 }
 
+/** The `mimetype` member says which OpenDocument flavour a zip is. */
+async function zipText(names: string[], file: File): Promise<string> {
+  if (!names.includes("mimetype")) return "";
+  const JSZip = (await import("jszip")).default;
+  const mime = await (await JSZip.loadAsync(file)).file("mimetype")?.async("string");
+  return mime?.match(/opendocument\.(\w+)/)?.[1] ?? "";
+}
+
 export async function sniff(file: File): Promise<Detected> {
   const head = new Uint8Array(await file.slice(0, HEAD).arrayBuffer());
   const e = ext(file.name);
 
   /* ------------------------------------------------------------ binary */
 
+  if (ascii(head, 0, "8BPS")) return { kind: "psd", label: "Photoshop file" };
+
+  /* Zip containers are tested first. A Pages file stores its PDF preview
+     uncompressed, which puts `%PDF` inside the first kilobyte of the archive
+     — so scanning for that signature before ruling out a zip would identify
+     half of Apple's formats as plain PDFs. */
+  if (ascii(head, 0, "PK") && (head[2] === 3 || head[2] === 5 || head[2] === 7))
+    return insideZip(file);
+
   /* A PDF is allowed a little junk before its header, and plenty of real
      files in the wild have some. */
-  if (find(head, "%PDF-", 1024) >= 0) return { kind: "pdf", label: "PDF" };
+  if (find(head, "%PDF-", 1024) >= 0)
+    return {
+      kind: "pdf",
+      /* Illustrator saves PDF-compatible artwork, so an .ai file usually is
+         a PDF wearing another extension — and converts with no work at all. */
+      label: e === "ai" ? "Illustrator artwork" : "PDF",
+    };
 
   if (head[0] === 0xff && head[1] === 0xd8 && head[2] === 0xff)
     return { kind: "image", label: "JPEG image" };
@@ -124,14 +169,7 @@ export async function sniff(file: File): Promise<Detected> {
     (head[0] === 0x49 && head[1] === 0x49 && head[2] === 0x2a) ||
     (head[0] === 0x4d && head[1] === 0x4d && head[2] === 0x00)
   )
-    return {
-      kind: "unsupported",
-      label: "TIFF image",
-      reason:
-        "Browsers cannot decode TIFF. Convert it to PNG or JPG first — Preview on a Mac and Photos on Windows both export either.",
-    };
-  if (ascii(head, 0, "PK") && (head[2] === 3 || head[2] === 5 || head[2] === 7))
-    return insideZip(file);
+    return { kind: "tiff", label: "TIFF image" };
   if (
     head[0] === 0xd0 &&
     head[1] === 0xcf &&
@@ -144,12 +182,7 @@ export async function sniff(file: File): Promise<Detected> {
       reason:
         "This is the pre-2007 Office format (.doc, .xls). Open it and save as .docx or .xlsx, and it will convert.",
     };
-  if (ascii(head, 0, "{\\rtf"))
-    return {
-      kind: "unsupported",
-      label: "RTF document",
-      reason: "RTF documents are not supported yet.",
-    };
+  if (ascii(head, 0, "{\\rtf")) return { kind: "rtf", label: "RTF document" };
 
   /* -------------------------------------------------------------- text */
 
@@ -175,6 +208,21 @@ export async function sniff(file: File): Promise<Detected> {
   const start = text.replace(/^\uFEFF/, "").trimStart();
   const lower = start.toLowerCase();
 
+  if (lower.startsWith("%!ps"))
+    return {
+      kind: "unsupported",
+      label: e === "ai" ? "legacy Illustrator artwork" : "PostScript file",
+      reason:
+        "This is PostScript, which needs an interpreter no browser has. Open it in Illustrator and save with \u201cCreate PDF Compatible File\u201d ticked, and it will convert.",
+    };
+  /* An email is text with a header block; the blank line ends it. */
+  if (
+    e === "eml" ||
+    /^(from|to|subject|date|received|message-id|mime-version):/im.test(
+      start.slice(0, 400),
+    )
+  )
+    return { kind: "eml", label: "email message" };
   if (
     lower.startsWith("<svg") ||
     (lower.startsWith("<?xml") && lower.includes("<svg"))

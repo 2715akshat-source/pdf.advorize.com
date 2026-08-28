@@ -23,17 +23,35 @@ import {
 import {
   csvBlocks,
   docxBlocks,
+  emlBlocks,
   htmlBlocks,
   markdownBlocks,
   textBlocks,
   xlsxBlocks,
 } from "./readers";
+import {
+  epubBlocks,
+  iworkPreview,
+  odpBlocks,
+  odsBlocks,
+  odtBlocks,
+  pptxBlocks,
+  rtfBlocks,
+} from "./office";
+import { decodePsd, decodeTiff, rasterToPng } from "./raster";
 import { base, pdfBlob, zip, type OutFile } from "./util";
 import type { Engine } from "./engines";
 
 const READERS: Partial<Record<Kind, (file: File) => Promise<Block[]>>> = {
   docx: docxBlocks,
   xlsx: xlsxBlocks,
+  pptx: pptxBlocks,
+  odt: odtBlocks,
+  ods: odsBlocks,
+  odp: odpBlocks,
+  epub: epubBlocks,
+  rtf: rtfBlocks,
+  eml: emlBlocks,
   markdown: markdownBlocks,
   html: htmlBlocks,
   csv: csvBlocks,
@@ -93,7 +111,10 @@ async function addImagePage(
   frame: Frame,
   fit: boolean,
 ) {
-  const img = await doc.embedPng(bytes);
+  /* A JPEG is embedded as it is rather than re-encoded, which keeps a photo
+     at its original size and quality. */
+  const isPng = bytes[0] === 0x89 && bytes[1] === 0x50;
+  const img = isPng ? await doc.embedPng(bytes) : await doc.embedJpg(bytes);
   if (!fit) {
     const page = doc.addPage([
       img.width + frame.margin * 2,
@@ -125,16 +146,19 @@ async function addImagePage(
 
 /* ---------------------------------------------------------------- engine */
 
-type Fail = { name: string; reason: string };
+type Note = { name: string; reason: string; fatal: boolean };
 
-/** Converts one file into pages on `doc`. */
+/**
+ * Converts one file into pages on `doc`. Returns a warning when the file
+ * converted but not completely — throwing is reserved for not converting.
+ */
 async function convertInto(
   doc: PDFDocument,
   file: File,
   frame: Frame,
   opts: Record<string, string>,
   fonts: () => Promise<Fonts>,
-) {
+): Promise<string | undefined> {
   const { kind, label, reason } = await sniff(file);
 
   if (kind === "unsupported")
@@ -146,6 +170,28 @@ async function convertInto(
     });
     const pages = await doc.copyPages(src, src.getPageIndices());
     pages.forEach((p) => doc.addPage(p));
+    return;
+  }
+
+  /* Pages, Numbers and Keynote are converted through the preview they carry;
+     when that preview is a PDF it is the whole document. */
+  if (kind === "iwork") {
+    const preview = await iworkPreview(file);
+    if (preview.pdf) {
+      const src = await PDFDocument.load(preview.pdf, { ignoreEncryption: true });
+      const pages = await doc.copyPages(src, src.getPageIndices());
+      pages.forEach((p) => doc.addPage(p));
+      return;
+    }
+    await addImagePage(doc, preview.image!, frame, opts.size !== "fit");
+    return "only its cover page could be converted, because this file carries a picture preview rather than a PDF one";
+  }
+
+  /* Two formats no browser will decode, so we decode them ourselves. */
+  if (kind === "psd" || kind === "tiff") {
+    const bytes = new Uint8Array(await file.arrayBuffer());
+    const raster = kind === "psd" ? decodePsd(bytes) : await decodeTiff(bytes);
+    await addImagePage(doc, await rasterToPng(raster), frame, opts.size !== "fit");
     return;
   }
 
@@ -171,8 +217,8 @@ async function convertInto(
 }
 
 /** Reports what a mixed run produced, so a skipped file is never silent. */
-function summarise(fails: Fail[], converted: number): string {
-  const detail = fails.map((f) => `${f.name}: ${f.reason}`).join("\n");
+function summarise(notes: Note[], converted: number): string {
+  const detail = notes.map((n) => `${n.name}: ${n.reason}`).join("\n");
   if (!converted) throw new Error(detail || "Nothing here could be converted.");
   return detail;
 }
@@ -192,7 +238,7 @@ const anyToPdf: Engine = async (files, opts, onProgress) => {
     return () => (pending ??= embedFonts(doc));
   };
 
-  const fails: Fail[] = [];
+  const notes: Note[] = [];
   const outputs: OutFile[] = [];
   let combined: PDFDocument | null = null;
   let converted = 0;
@@ -203,11 +249,12 @@ const anyToPdf: Engine = async (files, opts, onProgress) => {
   for (const [i, file] of files.entries()) {
     onProgress(i / files.length, file.name);
     try {
+      let warning: string | undefined;
       if (combined) {
-        await convertInto(combined, file, frame, opts, fonts!);
+        warning = await convertInto(combined, file, frame, opts, fonts!);
       } else {
         const doc = await PDFDocument.create();
-        await convertInto(doc, file, frame, opts, fontsFor(doc));
+        warning = await convertInto(doc, file, frame, opts, fontsFor(doc));
         doc.setTitle(base(file.name));
         outputs.push({
           name: `${base(file.name)}.pdf`,
@@ -215,16 +262,18 @@ const anyToPdf: Engine = async (files, opts, onProgress) => {
         });
       }
       converted++;
+      if (warning) notes.push({ name: file.name, reason: warning, fatal: false });
     } catch (e) {
-      fails.push({
+      notes.push({
         name: file.name,
         reason: e instanceof Error ? e.message : "This file could not be converted.",
+        fatal: true,
       });
     }
     onProgress((i + 1) / files.length, file.name);
   }
 
-  const note = summarise(fails, converted);
+  const note = summarise(notes, converted);
 
   if (combined) {
     combined.setTitle(stem);
@@ -246,8 +295,15 @@ export default anyToPdf;
    importing the detector's internals. */
 export const SUPPORTED = [
   "PDF",
+  "Illustrator (.ai)",
   "Word (.docx)",
   "Excel (.xlsx)",
+  "PowerPoint (.pptx)",
+  "OpenDocument (.odt, .ods, .odp)",
+  "Pages, Numbers, Keynote",
+  "RTF",
+  "EPUB",
+  "Email (.eml)",
   "JPG",
   "PNG",
   "WebP",
@@ -255,6 +311,8 @@ export const SUPPORTED = [
   "AVIF",
   "GIF",
   "BMP",
+  "TIFF",
+  "PSD",
   "SVG",
   "HTML",
   "Markdown",

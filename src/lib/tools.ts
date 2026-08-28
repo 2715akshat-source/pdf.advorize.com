@@ -771,10 +771,10 @@ export const tools: Tool[] = [
     action: "Convert to PDF",
     title: "Convert Any File to PDF Free — Auto Detect",
     description:
-      "Convert any file to PDF free: Word, Excel, images, HEIC, Markdown, HTML, CSV or text. The format is detected for you, several files become one PDF, nothing is uploaded.",
+      "Convert any file to PDF free: Word, Excel, PowerPoint, Pages, images, HEIC, PSD, TIFF, EPUB or text. The format is detected for you, several files become one PDF, nothing is uploaded.",
     h1: "Convert any file to PDF",
     intro:
-      "Every other converter asks you to pick the format first, which is a strange question given the file is right there. Drop anything in and this reads the file itself — not its name, which is often wrong — and converts it. Add a Word document, three phone photos and a spreadsheet at once and you get one PDF, in the order you arranged them.",
+      "Every other converter asks you to pick the format first, which is a strange question given the file is right there. Drop anything in and this reads the file itself — not its name, which is often wrong — and converts it. A Word file, a Keynote deck, three phone photos and a Photoshop mock-up can go in together, and one PDF comes out in the order you arranged them.",
     steps: [
       "Drop your files in — one, or a stack of different kinds.",
       "Each is identified and shown with what it was recognised as.",
@@ -783,7 +783,7 @@ export const tools: Tool[] = [
     faqs: [
       {
         q: "Which formats does it handle?",
-        a: "PDF, Word (.docx), Excel (.xlsx), every image your browser can open — JPG, PNG, WebP, HEIC, AVIF, GIF, BMP, SVG — and HTML, Markdown, CSV and plain text, including source code. PowerPoint, the pre-2007 Office formats (.doc, .xls) and TIFF are the notable gaps, and each one tells you what to do instead rather than failing quietly.",
+        a: "PDF and Illustrator artwork; Word, Excel and PowerPoint; OpenDocument text, spreadsheets and slides; Pages, Numbers and Keynote; RTF, EPUB and saved emails; every image your browser can open — JPG, PNG, WebP, HEIC, AVIF, GIF, BMP, SVG — plus TIFF and Photoshop files, which browsers cannot open and this tool decodes itself; and HTML, Markdown, CSV and plain text, including source code. The pre-2007 Office formats (.doc, .xls, .ppt) are the remaining gap: open one and save it in the modern format, and it converts.",
       },
       {
         q: "How does it know what my file is?",
@@ -792,6 +792,14 @@ export const tools: Tool[] = [
       {
         q: "How close is a Word document to the original?",
         a: "Headings, bold and italic, lists, tables and page breaks all carry over; Word's exact fonts, columns and floating images do not. It is a clean, readable document rather than a pixel match — for a pixel match, use Save as PDF inside Word itself. Nothing here can run Word's layout engine, and any browser tool that claims otherwise is uploading your file to a server that can.",
+      },
+      {
+        q: "What happens to a PowerPoint or Keynote deck?",
+        a: "A PowerPoint deck becomes one page per slide carrying that slide's title, its bullets and its speaker notes — the text, not a picture of the design. Keynote and Pages are different: those are read through the preview Apple saves inside the file, which is usually a PDF of the whole document and comes through exactly as it looks.",
+      },
+      {
+        q: "It says my file is in an old Office format. Now what?",
+        a: "The pre-2007 formats — .doc, .xls, .ppt — are a different thing entirely from today's .docx and .xlsx, which are readable zips. Open the file in Word, Excel, PowerPoint, LibreOffice or Google Docs and save it again in the modern format, and it converts here. Anything since about 2007 already is the modern format.",
       },
       {
         q: "Can I convert several files at once?",
@@ -813,6 +821,9 @@ export const tools: Tool[] = [
       "word to pdf",
       "docx to pdf online free",
       "excel to pdf",
+      "powerpoint to pdf",
+      "psd to pdf",
+      "tiff to pdf",
       "html to pdf",
       "convert file to pdf no sign up",
     ],
