@@ -298,8 +298,10 @@ function Numbers() {
   );
 }
 
-/** A sheet with a diagonal stamp across it. */
-function Watermark() {
+/** A diagonal stamp drawn across a sheet — or, for Remove, wiped off it. */
+function Watermark({ remove = false }: { remove?: boolean }) {
+  const on = { pathLength: 1, opacity: 0.55 };
+  const off = { pathLength: 0, opacity: 0 };
   return (
     <Big>
       <g transform="translate(42 0)">
@@ -313,7 +315,7 @@ function Watermark() {
         stroke="currentColor"
         strokeWidth="3"
         strokeLinecap="round"
-        variants={{ rest: { pathLength: 0, opacity: 0 }, active: { pathLength: 1, opacity: 0.55 } }}
+        variants={{ rest: remove ? on : off, active: remove ? off : on }}
         transition={{ duration: 0.6, ease }}
       />
     </Big>
@@ -480,6 +482,7 @@ const GLYPHS: Record<string, React.ReactNode> = {
   "png-to-pdf": <Convert reverse />,
   "add-page-numbers": <Numbers />,
   "watermark-pdf": <Watermark />,
+  "remove-watermark": <Watermark remove />,
   "crop-pdf": <Crop />,
   "flatten-pdf": <Flatten />,
   "grayscale-pdf": <Flatten tone />,

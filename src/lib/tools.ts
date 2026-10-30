@@ -39,7 +39,7 @@ export type Tool = {
   action: string;
   fields?: Field[];
   /** Tools whose interface is not the shared file-in / file-out runner. */
-  custom?: "editor";
+  custom?: "editor" | "unwatermark";
   /** Shows what each dropped file was recognised as — for `accept: "*"`. */
   detects?: boolean;
 };
@@ -964,7 +964,7 @@ export const tools: Tool[] = [
       },
       {
         q: "Can the watermark be removed later?",
-        a: "The text becomes part of the page content, so it cannot be toggled off — but anyone with a PDF editor can still edit it out. Treat a watermark as a label, not as security.",
+        a: "Yes — it is tagged as a watermark the way Acrobat tags its own, so the Remove Watermark tool takes it off in one step and leaves the page untouched. That also means anyone else can: treat a watermark as a label, not as security.",
       },
       {
         q: "Can I use an image or a logo?",
@@ -977,7 +977,7 @@ export const tools: Tool[] = [
       "stamp draft on pdf",
       "confidential watermark pdf",
     ],
-    related: ["edit-pdf", "add-page-numbers", "flatten-pdf", "edit-pdf-metadata"],
+    related: ["remove-watermark", "edit-pdf", "add-page-numbers", "flatten-pdf"],
     fields: [
       { key: "text", label: "Watermark text", type: "text", default: "CONFIDENTIAL" },
       { key: "size", label: "Text size (pt)", type: "number", default: "52", min: 8, max: 200 },
@@ -994,6 +994,62 @@ export const tools: Tool[] = [
         ],
       },
     ],
+  },
+  {
+    slug: "remove-watermark",
+    name: "Remove Watermark",
+    tagline: "Take a watermark off a PDF, photo or screenshot without a trace.",
+    engine: "unwatermark",
+    accept: `${PDF},${IMG}`,
+    category: "Edit",
+    custom: "unwatermark",
+    action: "Remove watermark",
+    title: "Remove Watermark Free — From PDF, JPG and PNG",
+    description:
+      "Remove a watermark from a PDF, JPG, PNG or WebP free. PDF watermarks are deleted cleanly; on images, AI fills the spot in. No upload, no sign-up.",
+    h1: "Remove a watermark from a PDF or image",
+    intro:
+      "Most PDF watermarks are a separate layer, so they are deleted outright and the page underneath comes back exactly as it was — text still selectable, nothing redrawn. When the watermark is part of the picture, paint over it: a see-through watermark is mathematically un-mixed so the real detail underneath comes back, and a solid one is filled in by an AI model from its surroundings. Only the pixels you painted change, and it all runs in this tab — your file is never uploaded.",
+    steps: [
+      "Open a PDF, image or document. A PDF is checked for a watermark layer straight away and cleaned if it has one.",
+      "Anything still showing: paint tightly over it with the brush and press Remove watermark.",
+      "Hold Compare to check against the original, then download — PDFs come back as PDFs, images in their own format.",
+    ],
+    faqs: [
+      {
+        q: "Will the rest of my image or page change?",
+        a: "No. Only what you paint is replaced; every other pixel is the pixel you gave it, at full resolution. On a PDF with a watermark layer, nothing is repainted at all — the layer is deleted and the page is otherwise byte-for-byte the same.",
+      },
+      {
+        q: "How good is it on a photo?",
+        a: "Most watermarks are see-through, and for those the real picture is still underneath — the tool works out the watermark's colour and opacity and reverses it, so a face under the letters comes back as the actual face. A solid, opaque watermark hides what was behind it completely; there the AI model fills the spot from its surroundings, which is near-invisible on skies, walls and fabric but has to invent detail on a face or small print. Paint tightly, and use Hold to compare.",
+      },
+      {
+        q: "Why does it download something the first time?",
+        a: "The fill is done by an AI model that runs on your own device, about 200 MB, downloaded once and then kept by your browser. Your image is never sent anywhere — the model comes to the file, not the other way round. If it cannot load, a simpler fill is used instead.",
+      },
+      {
+        q: "Which files does it take?",
+        a: "PDFs, every common image format — JPG, PNG, WebP, GIF, BMP, AVIF, SVG, TIFF and Photoshop PSD — and documents such as Word, PowerPoint, Excel and Pages, which are turned into a PDF first. Images come back in their own format where the browser can write it, and as PNG otherwise.",
+      },
+      {
+        q: "Can I remove a watermark on every page of a PDF at once?",
+        a: "Yes. A layer watermark is removed from every page automatically. For one that is part of the page, paint it once and leave Same spot on every page switched on — the fill runs on each page in turn. Only those pages are re-rendered; the rest keep their text.",
+      },
+      {
+        q: "Is it legal to remove a watermark?",
+        a: "From your own files — your drafts, your photos, documents you have the rights to — yes. Removing a watermark from someone else's photo or stock image to use it without a licence is copyright infringement in most countries, and this tool does not change that.",
+      },
+    ],
+    keywords: [
+      "remove watermark",
+      "remove watermark from pdf",
+      "remove watermark from image",
+      "watermark remover free",
+      "remove watermark from photo",
+      "remove draft watermark from pdf",
+    ],
+    related: ["watermark-pdf", "edit-pdf", "flatten-pdf", "crop-pdf"],
   },
   {
     slug: "crop-pdf",

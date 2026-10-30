@@ -55,7 +55,9 @@ export function traits(tool: Tool): Traits {
           ? "PNG images, zipped when there is more than one page"
           : tool.engine === "split"
             ? "one PDF per piece, zipped when there is more than one"
-            : "a PDF";
+            : tool.engine === "unwatermark"
+              ? "the same kind of file you put in — a PDF stays a PDF, a PNG stays a PNG"
+              : "a PDF";
 
   return {
     keepsText: !raster && tool.engine !== "toText" && tool.engine !== "unlock",
@@ -67,7 +69,9 @@ export function traits(tool: Tool): Traits {
 /* ------------------------------------------------------------ the angles */
 
 const textLine = (tool: Tool) =>
-  traits(tool).keepsText
+  tool.engine === "unwatermark"
+    ? `A watermark that is its own layer is deleted, so the page keeps its text. One that is part of the picture is painted out and filled in, which turns just that page into an image — every page you did not touch is copied across as it was.`
+    : traits(tool).keepsText
     ? `${tool.name} copies your pages rather than re-rendering them, so the text in the document you get back is still text — selectable, searchable, and the same file size it was.`
     : `${tool.name} re-renders each page, which is what makes it work — so the result is visually identical and no longer carries a text layer. Keep your original if you need to search it later.`;
 

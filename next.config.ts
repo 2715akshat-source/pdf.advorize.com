@@ -25,6 +25,25 @@ const nextConfig: NextConfig = {
   },
 
   /*
+   * The watermark remover's AI fill runs on WebAssembly threads, and the
+   * browser only hands out threads to a cross-origin-isolated page — about
+   * five times faster than one thread. `credentialless` keeps third-party
+   * scripts loading without asking every CDN to opt in. Only this page gets
+   * it; nothing else needs threads.
+   */
+  async headers() {
+    return [
+      {
+        source: "/remove-watermark",
+        headers: [
+          { key: "Cross-Origin-Opener-Policy", value: "same-origin" },
+          { key: "Cross-Origin-Embedder-Policy", value: "credentialless" },
+        ],
+      },
+    ];
+  },
+
+  /*
    * Slugs people and other sites guess at. A permanent redirect keeps the
    * link working without publishing a second URL for the same page, which is
    * what an alias would be.

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import ToolRunner from "@/components/ToolRunner";
 import PdfEditor from "@/components/PdfEditor";
+import WatermarkRemover from "@/components/WatermarkRemover";
 import Faq from "@/components/Faq";
 import JsonLd from "@/components/JsonLd";
 import Prose from "@/components/Prose";
@@ -61,9 +62,12 @@ export async function generateMetadata({
   });
 }
 
-/** The tool itself — the editor has its own interface, everything else shares one. */
+/** The tool itself — the editor and the watermark remover have their own
+    interfaces, everything else shares one. */
 function Runner({ tool }: { tool: Tool }) {
-  return tool.custom === "editor" ? <PdfEditor /> : <ToolRunner tool={tool} />;
+  if (tool.custom === "editor") return <PdfEditor />;
+  if (tool.custom === "unwatermark") return <WatermarkRemover />;
+  return <ToolRunner tool={tool} />;
 }
 
 export default async function Page({
