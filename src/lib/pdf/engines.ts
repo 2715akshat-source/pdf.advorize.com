@@ -4,7 +4,15 @@
  * and handed back as blobs. Nothing is uploaded, so there is no server-side
  * counterpart to any of this.
  */
-import { PDFDocument, degrees, rgb, StandardFonts } from "pdf-lib";
+import {
+  PDFDocument,
+  PDFOperator,
+  PDFOperatorNames as Ops,
+  PDFName,
+  degrees,
+  rgb,
+  StandardFonts,
+} from "pdf-lib";
 import anyToPdf from "./convert";
 import { getPdfjs } from "./pdfjs";
 import { base, parsePages, pdfBlob, zip, type OutFile } from "./util";
@@ -365,6 +373,14 @@ const watermark: Engine = async (files, opts, onProgress) => {
     const { width, height } = page.getSize();
     const textWidth = font.widthOfTextAtSize(text, size);
     const rad = (angle * Math.PI) / 180;
+    /* Tagged the way Acrobat tags its own, so the remove-watermark tool —
+       ours or anyone's — can take it off again without touching the page. */
+    page.pushOperators(
+      PDFOperator.of(Ops.BeginMarkedContentSequence, [
+        PDFName.of("Artifact"),
+        "<< /Type /Pagination /Subtype /Watermark >>",
+      ]),
+    );
     page.drawText(text, {
       x: width / 2 - (Math.cos(rad) * textWidth) / 2,
       y: height / 2 - (Math.sin(rad) * textWidth) / 2,
@@ -374,6 +390,7 @@ const watermark: Engine = async (files, opts, onProgress) => {
       rotate: degrees(angle),
       color: rgb(0.5, 0.5, 0.5),
     });
+    page.pushOperators(PDFOperator.of(Ops.EndMarkedContent));
     onProgress((i + 1) / total);
   });
   return [{ name: `${base(files[0].name)}-watermarked.pdf`, blob: await save(doc) }];
